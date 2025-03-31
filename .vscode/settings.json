@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "print.h": "c",
+        "gba.h": "c",
+        "lose.h": "c",
+        "game.h": "c",
+        "tileset.h": "c"
+    }
+}
