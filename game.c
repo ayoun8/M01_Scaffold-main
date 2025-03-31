@@ -10,6 +10,7 @@
 #include "collisionMap.h"
 #include "background1.h"
 #include "tileset.h"
+#include "collisionMap2.h"
 #include "background2.h"
 #include "tileset2.h"
 
@@ -48,7 +49,14 @@ int level2 = 0;
 
 
 inline unsigned char colorAt(int x, int y){
-    return ((unsigned char *) collisionMapBitmap) [OFFSET(x, y, MAPWIDTH)];
+    if (level == 1) {
+        return ((unsigned char *) collisionMapBitmap) [OFFSET(x, y, MAPWIDTH)];
+    } else if (level == 2) {
+        return ((unsigned char *) collisionMap2Bitmap) [OFFSET(x, y, MAPWIDTH)];
+    } else {
+        return 0;
+    }
+    
 }
 
 void initGame() {
