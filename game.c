@@ -16,8 +16,9 @@
 
 // Global variable definitions
 SPRITE player;
-SPRITE fireballs [MAXFIREBALLS];
-SPRITE rareCandy [MAXRARECANDY];
+SPRITE fireballs[MAXFIREBALLS];
+SPRITE rareCandy[MAXRARECANDY];
+SPRITE blaze[MAXFIRES];
 SPRITE healItem;
 SPRITE lifeCount;
 
@@ -64,6 +65,7 @@ void initGame() {
     initFireballs();
     initRareCandy();
     initHeal();
+    initBlaze();
 
     lives = 3;
     fireballsRemaining = 5;
@@ -86,6 +88,7 @@ void updateGame() {
         updateFireballs();
         updateRareCandy();
         updateHeal();
+        updateBlaze();
 
         if (level == 1 && rareCandiesCollected == 3 && exit1()) {
             evolution = 1;
@@ -118,6 +121,7 @@ void drawGame() {
     drawPlayer();
     drawFireballs();
     drawRareCandy();
+    drawBlaze();
     // drawHeal();
     // drawHearts();
 }
@@ -319,11 +323,41 @@ void burn(int x, int y) {
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
+
+                for (int dx = 0; dx < 2; dx++) {
+                    for (int dy = 0; dy < 2; dy++) {
+                        for (int i = 0; i < MAXFIRES; i++) {
+                            if (!blaze[i].active) {
+                                blaze[i].x = (topLeftX + dx) * 8;
+                                blaze[i].y = (topLeftY + dy) * 8;
+                                blaze[i].active = 1;
+                                blaze[i].timer = 20;
+                                blaze[i].currentFrame = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
             } else if (level == 2) {
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 8;
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 8;
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 9;
                 SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 9;
+
+                for (int dx = 0; dx < 2; dx++) {
+                    for (int dy = 0; dy < 2; dy++) {
+                        for (int i = 0; i < MAXFIRES; i++) {
+                            if (!blaze[i].active) {
+                                blaze[i].x = (topLeftX + dx) * 8;
+                                blaze[i].y = (topLeftY + dy) * 8;
+                                blaze[i].active = 1;
+                                blaze[i].timer = 20;
+                                blaze[i].currentFrame = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
             } else {
                 return 0;
             }
@@ -339,6 +373,40 @@ void burn(int x, int y) {
                 }
             }
             break; // only burn one
+        }
+    }
+}
+
+void initBlaze() {
+    for (int i = 0; i < MAXFIRES; i++) {
+        blaze[i].width = 8;
+        blaze[i].height = 8;
+        blaze[i].active = 0;
+        blaze[i].oamIndex = 60 + i;
+        blaze[i].timer = 0;
+    }
+}
+
+void updateBlaze() {
+    for (int i = 0; i < MAXFIRES; i++) {
+        if (blaze[i].active) {
+            blaze[i].timer--;
+            if (blaze[i].timer <= 0) {
+                blaze[i].active = 0;
+                shadowOAM[blaze[i].oamIndex].attr0 = ATTR0_HIDE;
+            } else {
+                blaze[i].currentFrame = (20 - blaze[i].timer) / 10;
+            }
+        }
+    }
+}
+
+void drawBlaze() {
+    for (int i = 0; i < MAXFIRES; i++) {
+        if (blaze[i].active) {
+            shadowOAM[blaze[i].oamIndex].attr0 = ATTR0_Y(blaze[i].y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+            shadowOAM[blaze[i].oamIndex].attr1 = ATTR1_X(blaze[i].x - hOff) | ATTR1_TINY;
+            shadowOAM[blaze[i].oamIndex].attr2 = ATTR2_TILEID(6 + blaze[i].currentFrame * 2, 7);
         }
     }
 }

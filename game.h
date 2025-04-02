@@ -4,6 +4,7 @@
 // Constant
 #define MAXRARECANDY 6
 #define MAXFIREBALLS 5
+#define MAXFIRES 6
 int candyX[MAXRARECANDY];
 int candyY[MAXRARECANDY];
 
@@ -18,6 +19,7 @@ extern SPRITE fireballs[MAXFIREBALLS];
 extern SPRITE rareCandy[MAXRARECANDY];
 extern SPRITE healItem;
 extern SPRITE lifeCount;
+extern SPRITE blaze[MAXFIRES];
 extern OBJ_ATTR shadowOAM[128];
 
 extern int hOff;
@@ -52,6 +54,10 @@ void findFlowerSpots();
 void randomFlowers();
 void revealCandy();
 void burn(int x, int y);
+
+void initBlaze();
+void updateBlaze();
+void drawBlaze();
 
 void initHeal();
 void updateHeal();
