@@ -1,6 +1,5 @@
 #include "analogSound.h"
 
-
 // For TA sanity, please do not mess with the volume settings here.
 void initSound(){
   // Enable sound (Master control)

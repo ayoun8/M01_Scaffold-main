@@ -104,6 +104,13 @@ void updateGame() {
                 gameLost = 1;
             }
         }
+
+        if (level == 2) {
+            if (rareCandiesCollected == 3 && exit2()) {
+                evolution = 2;
+                goToWin();
+            }
+        }
     }
 }
 
@@ -289,7 +296,7 @@ void burn(int x, int y) {
         int topLeftX = tx + offsets[i][0];
         int topLeftY = ty + offsets[i][1];
 
-        if (topLeftX < 0 || topLeftX >= 31 || topLeftY < 0 || topLeftY >= 31) {
+        if (topLeftX < 0 || topLeftX >= 32 || topLeftY < 0 || topLeftY >= 32) {
             continue;
         }
 
@@ -307,12 +314,18 @@ void burn(int x, int y) {
         }
 
         if (match) {
-            SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
-            SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
-            SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
-            SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
+            for (int dx = 0; dx < 2; dx++) {
+                for (int dy = 0; dy < 2; dy++) {
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + dx, topLeftY + dy, 32)] = 2;
+                }
+            }
+            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
+            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
+            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
+            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
 
             for (int j = 0; j < MAXRARECANDY; j++) {
+                // Tiles
                 int candyX = rareCandy[j].x / 8;
                 int candyY = rareCandy[j].y / 8;
                 if (!rareCandy[j].active &&
@@ -326,52 +339,52 @@ void burn(int x, int y) {
     }
 }
 
-// void initRareCandy() {
-//     if (level == 1) {
-//         int candyX[] = {8, 24, 240};
-//         int candyY[] = {128, 240, 216};
-    
-//         for (int i = 0; i < 3; i++) {
-//             rareCandy[i].x = candyX[i];
-//             rareCandy[i].y = candyY[i];
-//             rareCandy[i].width = 16;
-//             rareCandy[i].height = 16;
-//             // Hide
-//             rareCandy[i].active = 0;
-//             rareCandy[i].oamIndex = 50 + i;
-//         }
-//         for (int i = 3; i < MAXRARECANDY; i++) {
-//             rareCandy[i].active = 0;
-//         }
-//     } else if (level == 2) {
-//         int candyX[] = {8, 24, 240};
-//         int candyY[] = {128, 240, 216};
-    
-//         for (int i = 0; i < MAXRARECANDY; i++) {
-//             rareCandy[i].x = candyX[i];
-//             rareCandy[i].y = candyY[i];
-//             rareCandy[i].width = 16;
-//             rareCandy[i].height = 16;
-//             // Hide
-//             rareCandy[i].active = 0;
-//             rareCandy[i].oamIndex = 30 + i;
-//         }
-//     }
-// }
-
 void initRareCandy() {
-    int centerY = MAPHEIGHT / 2;
-    int startX = (MAPWIDTH / 2) - 24;
-
-    for (int i = 0; i < MAXRARECANDY; i++) {
-        rareCandy[i].x = startX + (i * 24);
-        rareCandy[i].y = centerY;
-        rareCandy[i].width = 16;
-        rareCandy[i].height = 16;
-        rareCandy[i].active = 1;
-        rareCandy[i].oamIndex = 30 + i;
+    if (level == 1) {
+        int candyX[] = {1 * 8, 3 * 8, 30 * 8};
+        int candyY[] = {16 * 8, 30 * 8, 27 * 8};
+    
+        for (int i = 0; i < 3; i++) {
+            rareCandy[i].x = candyX[i];
+            rareCandy[i].y = candyY[i];
+            rareCandy[i].width = 16;
+            rareCandy[i].height = 16;
+            // Hide
+            rareCandy[i].active = 1;
+            rareCandy[i].oamIndex = 50 + i;
+        }
+        for (int i = 3; i < MAXRARECANDY; i++) {
+            rareCandy[i].active = 0;
+        }
+    } else if (level == 2) {
+        int candyX[] = {30 * 8, 2 * 8, 28 * 8};
+        int candyY[] = {3 * 8, 30 * 8, 28 * 8};
+    
+        for (int i = 0; i < 3; i++) {
+            rareCandy[i].x = candyX[i];
+            rareCandy[i].y = candyY[i];
+            rareCandy[i].width = 16;
+            rareCandy[i].height = 16;
+            // Hide
+            rareCandy[i].active = 1;
+            rareCandy[i].oamIndex = 30 + i;
+        }
     }
 }
+
+// void initRareCandy() {
+//     int centerY = MAPHEIGHT / 2;
+//     int startX = (MAPWIDTH / 2) - 24;
+
+//     for (int i = 0; i < MAXRARECANDY; i++) {
+//         rareCandy[i].x = startX + (i * 24);
+//         rareCandy[i].y = centerY;
+//         rareCandy[i].width = 16;
+//         rareCandy[i].height = 16;
+//         rareCandy[i].active = 1;
+//         rareCandy[i].oamIndex = 30 + i;
+//     }
+// }
 
 void updateRareCandy() {
     for (int i = 0; i < MAXRARECANDY; i++) {
@@ -398,15 +411,28 @@ void drawRareCandy() {
     }
 }
 
-// Level 2 implementation
 int exit1() {
     int playerX = player.x / 8;
     int playerY = player.y / 8;
 
-    int doorTiles[] = {86, 87, 92, 93, 97, 98};
+    int exit1Tiles[] = {86, 87, 92, 93, 97, 98};
 
     for (int i = 0; i < 6; i++) {
-        if (SCREENBLOCK[28].tilemap[OFFSET(playerX, playerY, 32)] == doorTiles[i]) {
+        if (SCREENBLOCK[28].tilemap[OFFSET(playerX, playerY, 32)] == exit1Tiles[i]) {
+            return 1; // At exit
+        }
+    }
+    return 0;
+}
+
+int exit2() {
+    int playerX = player.x / 8;
+    int playerY = player.y / 8;
+
+    int exit2Tiles[] = {32, 33};
+
+    for (int i = 0; i < 2; i++) {
+        if (SCREENBLOCK[28].tilemap[OFFSET(playerX, playerY, 32)] == exit2Tiles[i]) {
             return 1; // At exit
         }
     }
