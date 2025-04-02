@@ -314,15 +314,19 @@ void burn(int x, int y) {
         }
 
         if (match) {
-            for (int dx = 0; dx < 2; dx++) {
-                for (int dy = 0; dy < 2; dy++) {
-                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + dx, topLeftY + dy, 32)] = 2;
-                }
+            if (level == 1) {
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
+            } else if (level == 2) {
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 8;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 8;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 9;
+                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 9;
+            } else {
+                return 0;
             }
-            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
-            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
-            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
-            // SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
 
             for (int j = 0; j < MAXRARECANDY; j++) {
                 // Tiles
