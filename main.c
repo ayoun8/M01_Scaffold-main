@@ -11,6 +11,8 @@
 #include "tileset.h" 
 #include "background2.h"
 #include "tileset2.h"
+#include "background3.h"
+#include "tileset3.h"
 
 // State .h files
 #include "start.h"
@@ -203,9 +205,22 @@ void goToGame2() {
     DMANow(3, shadowOAM, OAM, 512);
 }
 
+void goToGame3() {
+    level = 3;
+
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
+    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
+
+    DMANow(3, tileset3Pal, BG_PALETTE, tileset3PalLen / 2);
+    DMANow(3, tileset3Tiles, &CHARBLOCK[0], tileset3TilesLen/2);
+    DMANow(3, background3Map, &SCREENBLOCK[28], background3Len/2);
+
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 512);
+}
+
 void game(){
     updateGame();
-    waitForVBlank();
     drawGame();
 
     if (BUTTON_PRESSED(BUTTON_START)) {

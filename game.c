@@ -13,6 +13,8 @@
 #include "collisionMap2.h"
 #include "background2.h"
 #include "tileset2.h"
+#include "background3.h"
+#include "tileset3.h"
 
 // Global variable definitions
 SPRITE player;
@@ -93,12 +95,8 @@ void updateGame() {
         if (level == 1 && rareCandiesCollected == 3 && exit1()) {
             evolution = 1;
             fireballsRemaining = 5;
-            goToGame2();
-        }
-
-        // Delay lose screen after last fireball
-        if (fireballsRemaining == 0 && fireballDelayTimer == 0) {
             fireballDelayTimer = 60;
+            goToGame2();
         }
 
         if (fireballDelayTimer > 0) {
@@ -111,7 +109,7 @@ void updateGame() {
         if (level == 2) {
             if (rareCandiesCollected == 3 && exit2()) {
                 evolution = 2;
-                goToWin();
+                goToGame3();
             }
         }
     }
@@ -284,6 +282,12 @@ void drawFireballs() {
     }
 }
 
+// void drawFireballTracker() {
+//     char buffer[16];
+//     sprintf(buffer, "Fireballs: %d", fireballsRemaining);
+//     drawString(180, 0, buffer, WHITE);
+// }
+
 void burn(int x, int y) {
     // Flowers
     int tx = x / 8;
@@ -299,6 +303,10 @@ void burn(int x, int y) {
     for (int i = 0; i < 4; i++) {
         int topLeftX = tx + offsets[i][0];
         int topLeftY = ty + offsets[i][1];
+
+        if (level == 1) {
+            topLeftY += 1;
+        }
 
         if (topLeftX < 0 || topLeftX >= 32 || topLeftY < 0 || topLeftY >= 32) {
             continue;
@@ -358,13 +366,22 @@ void burn(int x, int y) {
                 // Tiles
                 int candyX = rareCandy[j].x / 8;
                 int candyY = rareCandy[j].y / 8;
+                
                 if (!rareCandy[j].active &&
-                    candyX == topLeftX &&
-                    candyY == topLeftY) {
+                    // candyX == topLeftX &&
+                    // candyY == topLeftY) {
+                    // rareCandy[j].active = 1;
+                    abs(candyX - topLeftX) <= 2 &&
+                    abs(candyY - topLeftY) <= 2) {
                     rareCandy[j].active = 1;
                 }
             }
-            break; // only burn one
+
+            // Recharge fireballs
+            if ((topLeft == 39) || (topRight == 40) || (bottomLeft == 47) || (bottomRight == 48)) {
+                fireballsRemaining++;
+            }
+            //break; // only burn one
         }
     }
 }
