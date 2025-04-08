@@ -78,6 +78,7 @@ typedef struct {
   int currentFrame;
   int numFrames;
   int active;
+  int speed;
   u8 oamIndex; 
 } SPRITE;
 

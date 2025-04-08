@@ -13,6 +13,8 @@
 #include "tileset2.h"
 #include "background3.h"
 #include "tileset3.h"
+#include "background4.h"
+#include "tileset4.h"
 
 // State .h files
 #include "start.h"
@@ -55,13 +57,13 @@ void goToStart();
 void goToInstructions();
 void goToGame();
 void goToGame2();
+void goToGame3();
 void goToPause();
 void goToWin();
 void goToLose();
 
 void start();
 void game();
-// void game2();
 void instructions();
 void pause();
 void win();
@@ -84,8 +86,6 @@ int main() {
             case GAME:
                 game();
                 break;
-            // case GAME2:
-            //     break;
             case PAUSE:
                 pause();
                 break;
@@ -207,6 +207,14 @@ void goToGame2() {
 
 void goToGame3() {
     level = 3;
+    rareCandiesCollected = 0;
+
+    initPlayer();
+    initBrock();
+    // initDialogue();
+
+    player.x = 130;
+    player.y = 235;
 
     REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
@@ -217,11 +225,42 @@ void goToGame3() {
 
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 512);
+
+    state = GAME;
+}
+
+void goToGame4() {
+    level = 4;
+    rareCandiesCollected = 0;
+    fireballsRemaining = 5;
+
+    initPlayer();
+    initBrock();
+
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
+    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
+
+    DMANow(3, tileset4Pal, BG_PALETTE, tileset4PalLen / 2);
+    DMANow(3, tileset4Tiles, &CHARBLOCK[0], tileset4TilesLen/2);
+    DMANow(3, background4Map, &SCREENBLOCK[28], background4Len/2);
+
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 512);
+
+    state = GAME;
 }
 
 void game(){
     updateGame();
     drawGame();
+
+    // Debug
+    if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
+        goToGame2();
+    }
+    if (BUTTON_PRESSED(BUTTON_LSHOULDER)) {
+        goToGame3();
+    }
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
@@ -236,13 +275,18 @@ void game(){
             fireballsRemaining = 8;
             goToGame2();
         }
+    } else if (level == 2) {
+        if (rareCandiesCollected >= 3 && exit2()) {
+            evolution = 2;
+            goToGame3();
+        }
+    } else if (level == 3) {
+        // updateBrock();
+        // if (collisionBrock()) {
+        //     startDialogue("I'm Brock, let's battle when you're ready.");
+        // }
+
     }
-    // } else if (level == 2) {
-    //     if (rareCandiesCollected == 3 && exit2()) {
-    //         evolution = 2;
-    //         goToGame3();
-    //     }
-    // }
 }
 
 void goToPause() {
@@ -267,7 +311,13 @@ void pause(){
     DMANow(3, shadowOAM, OAM, 512);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToGame();
+        if (level == 1) {
+            goToGame();
+        } else if (level == 2) {
+            goToGame2();
+        } else if (level == 3) {
+            goToGame3();
+        }
     }
     if (BUTTON_PRESSED(BUTTON_SELECT)) {
         goToStart();

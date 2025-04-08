@@ -20,6 +20,7 @@ extern SPRITE rareCandy[MAXRARECANDY];
 extern SPRITE healItem;
 extern SPRITE lifeCount;
 extern SPRITE blaze[MAXFIRES];
+extern SPRITE brock;
 extern OBJ_ATTR shadowOAM[128];
 
 extern int hOff;
@@ -74,3 +75,7 @@ void drawHearts();
 void drawGame1();
 // void drawGame2();
 // void drawGame3();
+
+void initBrock();
+void updateBrock();
+void drawBrock();

@@ -4,6 +4,7 @@
         "gba.h": "c",
         "lose.h": "c",
         "game.h": "c",
-        "tileset.h": "c"
+        "tileset.h": "c",
+        "background1.h": "c"
     }
 }

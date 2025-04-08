@@ -13,8 +13,12 @@
 #include "collisionMap2.h"
 #include "background2.h"
 #include "tileset2.h"
+#include "collisionMap3.h"
 #include "background3.h"
 #include "tileset3.h"
+#include "collisionMap4.h"
+#include "background4.h"
+#include "tileset4.h"
 
 // Global variable definitions
 SPRITE player;
@@ -23,6 +27,7 @@ SPRITE rareCandy[MAXRARECANDY];
 SPRITE blaze[MAXFIRES];
 SPRITE healItem;
 SPRITE lifeCount;
+SPRITE brock;
 
 OBJ_ATTR shadowOAM[128];
 
@@ -33,6 +38,12 @@ typedef enum {
     LEFT,
     RIGHT
 } DIRECTION;
+
+typedef enum {
+    IDLE,
+    TALKING,
+    MOVING
+} BROCKSTATE;
 
 // Surrogate variables
 int hOff;
@@ -48,14 +59,18 @@ int fireballDelayTimer = 0;
 
 int gameLost = 0;
 int level = 1;
-int level2 = 0;
 
+BROCKSTATE brockState;
 
 inline unsigned char colorAt(int x, int y){
     if (level == 1) {
         return ((unsigned char *) collisionMapBitmap) [OFFSET(x, y, MAPWIDTH)];
     } else if (level == 2) {
         return ((unsigned char *) collisionMap2Bitmap) [OFFSET(x, y, MAPWIDTH)];
+    } else if (level == 3) {
+        return ((unsigned char *) collisionMap3Bitmap) [OFFSET(x, y, MAPWIDTH)];
+    } else if (level == 4){
+        return ((unsigned char *) collisionMap4Bitmap) [OFFSET(x, y, MAPWIDTH)];
     } else {
         return 0;
     }
@@ -92,11 +107,13 @@ void updateGame() {
         updateHeal();
         updateBlaze();
 
-        if (level == 1 && rareCandiesCollected == 3 && exit1()) {
+        if (level == 1 && rareCandiesCollected == 3) {
             evolution = 1;
-            fireballsRemaining = 5;
-            fireballDelayTimer = 60;
-            goToGame2();
+            if (exit1()) {
+                fireballsRemaining = 5;
+                fireballDelayTimer = 60;
+                goToGame2();
+            }
         }
 
         if (fireballDelayTimer > 0) {
@@ -112,6 +129,9 @@ void updateGame() {
                 goToGame3();
             }
         }
+        if (level == 3) {
+            updateBrock();
+        }
     }
 }
 
@@ -122,6 +142,10 @@ void drawGame() {
     drawBlaze();
     // drawHeal();
     // drawHearts();
+
+    if (level == 3) {
+        drawBrock();
+    }
 }
 
 void initPlayer() {
@@ -223,9 +247,16 @@ void drawPlayer() {
     }
     
     else if (isPokemon) {
-    shadowOAM[0].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-    shadowOAM[0].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
-    shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 8, player.currentFrame * 2);
+        shadowOAM[0].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[0].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
+
+        if (evolution == 0) {
+            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 8, player.currentFrame * 2);
+        } else if (evolution == 1) {
+            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 16, player.currentFrame * 2);
+        } else if (evolution == 2) {
+            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 24, player.currentFrame * 2);
+        }
     }
 
     REG_BG0HOFF = hOff;
@@ -283,9 +314,6 @@ void drawFireballs() {
 }
 
 // void drawFireballTracker() {
-//     char buffer[16];
-//     sprintf(buffer, "Fireballs: %d", fireballsRemaining);
-//     drawString(180, 0, buffer, WHITE);
 // }
 
 void burn(int x, int y) {
@@ -526,7 +554,7 @@ void initHeal() {
     healItem.x = 120;
     healItem.y = 128;
     healItem.active = 1;
-    healItem.oamIndex = 50;
+    healItem.oamIndex = 60;
 }
 
 void updateHeal() {
@@ -557,4 +585,75 @@ void drawHearts() {
     for (int i = lives; i < 3; i++) {
         shadowOAM[lifeCount.oamIndex + i].attr0 = ATTR0_HIDE;
     }
+}
+
+void initBrock() {
+    brock.x = 150;
+    brock.y = 150;
+    brock.width = 16;
+    brock.height = 16;
+    brock.oamIndex = 80;
+    brock.speed = 1;
+    brockState = IDLE;
+}
+
+void updateBrock() {
+    if (brockState == IDLE) {
+        if (collision(player.x, player.y, player.width, player.height, brock.x, brock.y, brock.width, brock.height)) {
+            goToGame4();
+        }
+    } else if (brockState == TALKING) {
+        if (BUTTON_PRESSED(BUTTON_A)) {
+            brockState = MOVING;
+        }
+    } else if (brockState == MOVING) {
+        updateBrockMovement();
+        if (brock.x < player.x) {
+            brock.x += brock.speed;
+        } else if (brock.x > player.x) {
+            brock.x -= 1;
+        }
+    }
+}
+
+void finishDialogue() {
+    brockState = MOVING;
+}
+
+void updateBrockMovement() {
+    // int doorX = 3;
+    // int doorY = 3;
+
+    // if (brockState == MOVING) {
+    //     if (brock.x < doorX) {
+    //         brock.x += brock.speed;
+    //     } else if (brock.x > doorX) {
+    //         brock.x -= brock.speed;
+    //     }
+    //     if (brock.y < doorY) {
+    //         brock.y += brock.speed;
+    //     } else if (brock.y > doorY) {
+    //         brock.y -= brock.speed;
+    //     }
+
+    //     if (abs(brock.x - doorX) < brock.speed && abs(brock.y - doorY) < brock.speed) {
+    //         brock.x = doorX;
+    //         brock.y = doorY;
+    //         // Transition 
+    //         brockState = IDLE;
+    //     }
+    // }
+}
+
+void drawBrock() {
+    if (brockState == IDLE) {
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(0, 8);
+    } else if (brockState == TALKING) {
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(2, 8);
+    } else if (brockState == MOVING) {
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(4, 8);
+    }
+
+    shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+    shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
 }
