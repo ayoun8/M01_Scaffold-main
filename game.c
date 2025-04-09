@@ -83,10 +83,7 @@ inline unsigned char colorAt(int x, int y){
         return ((unsigned char *) collisionMap3Bitmap) [OFFSET(x, y, MAPWIDTH)];
     } else if (level == 4){
         return ((unsigned char *) collisionMap4Bitmap) [OFFSET(x, y, MAPWIDTH)];
-    } else {
-        return 0;
     }
-    
 }
 
 void initGame() {

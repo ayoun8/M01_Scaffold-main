@@ -254,11 +254,14 @@ void battle() {
     }
 
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
+        goToPause();
     }
 }
 
 void goToBattle() {
+    hideSprites();
+    clearRareCandy();
+
     hOff = 0;
     vOff = 0;
 
@@ -319,6 +322,46 @@ void game(){
     }
 }
 
+void resume() {
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
+    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
+
+    switch (level) {
+        case 1:
+            DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
+            DMANow(3, tilesetTiles, &CHARBLOCK[0], tilesetTilesLen/2);
+            DMANow(3, background1Map, &SCREENBLOCK[28], background1Len/2);
+            break;
+        case 2:
+            DMANow(3, tileset2Pal, BG_PALETTE, tileset2PalLen / 2);
+            DMANow(3, tileset2Tiles, &CHARBLOCK[0], tileset2TilesLen/2);
+            DMANow(3, background2Map, &SCREENBLOCK[28], background2Len/2);
+            break;
+        case 3:
+            DMANow(3, tileset3Pal, BG_PALETTE, tileset3PalLen / 2);
+            DMANow(3, tileset3Tiles, &CHARBLOCK[0], tileset3TilesLen/2);
+            DMANow(3, background3Map, &SCREENBLOCK[28], background3Len/2);
+            break;
+        case 4:
+            DMANow(3, tileset4Pal, BG_PALETTE, tileset4PalLen / 2);
+            DMANow(3, tileset4Tiles, &CHARBLOCK[0], tileset4TilesLen/2);
+            DMANow(3, background4Map, &SCREENBLOCK[28], background4Len/2);
+            break;
+    }
+
+    REG_BG0HOFF = hOff;
+    REG_BG0VOFF = vOff;
+
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 512);
+
+    if (level == 4) {
+        state = BATTLE;
+    } else {
+        state = GAME;
+    }
+}
+
 void goToPause() {
     hOff = 256;
     vOff = 0;
@@ -341,13 +384,7 @@ void pause(){
     DMANow(3, shadowOAM, OAM, 512);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
-        if (level == 1) {
-            goToGame();
-        } else if (level == 2) {
-            goToGame2();
-        } else if (level == 3) {
-            goToGame3();
-        }
+        resume();
     }
     if (BUTTON_PRESSED(BUTTON_SELECT)) {
         goToStart();

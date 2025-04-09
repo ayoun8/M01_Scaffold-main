@@ -56,6 +56,7 @@
 
 ***Bugs***
 1. Rare candy spawn positions aren't as accurate as I want them to be.
+2. The pause pauses things well but also regenerates the burnt tiles (but still keeps your progress).
 
 ***NAVIGATION***
 a. Press START to start
@@ -69,6 +70,7 @@ DEBUGGING
 ***Notes****
 - My heal works and loads.
 - I also did not hide the rare candies and just placed them in the center so they are easy to collect to test my game.
+- You're more likely to lose when you use scratch
 
 ***INSTRUCTIONS FOR MY GAME***
 1. Check "navigation" for information on how to use my state machine
