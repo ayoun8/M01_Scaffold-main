@@ -66,6 +66,10 @@ void drawHeal();
 
 void drawHearts();
 
+void initBattle();
+void updateBattle();
+void drawBattle();
+
 // void drawWin();
 // void drawLose();
 // void drawStart();

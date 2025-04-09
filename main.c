@@ -41,11 +41,11 @@ int state;
 enum {
     START,
     GAME,
-    //GAME2,
     PAUSE,
     WIN,
     LOSE,
-    INSTRUCTIONS
+    INSTRUCTIONS, 
+    BATTLE
 };
 
 // Prototype functions
@@ -68,6 +68,15 @@ void instructions();
 void pause();
 void win();
 void lose();
+
+void battle();
+
+void clearRareCandy() {
+    for (int i = 0; i < MAXRARECANDY; i++) {
+        rareCandy[i].active = 0;
+        shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_HIDE;
+    }
+}
 
 int main() {
     initialize();
@@ -94,6 +103,9 @@ int main() {
                 break;
             case LOSE:
                 lose();
+                break;
+            case BATTLE:
+                battle();
                 break;
          }
     }
@@ -186,6 +198,8 @@ void goToGame() {
 }
 
 void goToGame2() {
+    clearRareCandy();
+    
     level = 2;
     rareCandiesCollected = 0;
     fireballsRemaining = 5;
@@ -206,6 +220,9 @@ void goToGame2() {
 }
 
 void goToGame3() {
+    hideSprites();
+    clearRareCandy();
+
     level = 3;
     rareCandiesCollected = 0;
 
@@ -229,13 +246,23 @@ void goToGame3() {
     state = GAME;
 }
 
-void goToGame4() {
-    level = 4;
-    rareCandiesCollected = 0;
-    fireballsRemaining = 5;
+void battle() {
+    updateBattle();
 
-    initPlayer();
-    initBrock();
+    if (state == BATTLE) {
+        drawBattle();
+    }
+
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToStart();
+    }
+}
+
+void goToBattle() {
+    hOff = 0;
+    vOff = 0;
+
+    level = 4;
 
     REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
@@ -245,9 +272,12 @@ void goToGame4() {
     DMANow(3, background4Map, &SCREENBLOCK[28], background4Len/2);
 
     waitForVBlank();
+    hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
 
-    state = GAME;
+    initBattle();
+    state = BATTLE;
+
 }
 
 void game(){

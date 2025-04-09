@@ -28,6 +28,8 @@ SPRITE blaze[MAXFIRES];
 SPRITE healItem;
 SPRITE lifeCount;
 SPRITE brock;
+SPRITE charizard;
+SPRITE onyx;
 
 OBJ_ATTR shadowOAM[128];
 
@@ -59,6 +61,16 @@ int fireballDelayTimer = 0;
 
 int gameLost = 0;
 int level = 1;
+
+int charizardHP;
+int onyxHP;
+int charizardDamaged;
+int onyxDamaged;
+int charizardAttack;
+int onyxAttack;
+int charizardTurn;
+int move;
+int attackCooldown;
 
 BROCKSTATE brockState;
 
@@ -132,6 +144,9 @@ void updateGame() {
         if (level == 3) {
             updateBrock();
         }
+        if (level == 4) {
+            updateBattle();
+        }
     }
 }
 
@@ -145,6 +160,9 @@ void drawGame() {
 
     if (level == 3) {
         drawBrock();
+    }
+    if (level == 4) {
+        drawBattle();
     }
 }
 
@@ -481,20 +499,6 @@ void initRareCandy() {
     }
 }
 
-// void initRareCandy() {
-//     int centerY = MAPHEIGHT / 2;
-//     int startX = (MAPWIDTH / 2) - 24;
-
-//     for (int i = 0; i < MAXRARECANDY; i++) {
-//         rareCandy[i].x = startX + (i * 24);
-//         rareCandy[i].y = centerY;
-//         rareCandy[i].width = 16;
-//         rareCandy[i].height = 16;
-//         rareCandy[i].active = 1;
-//         rareCandy[i].oamIndex = 30 + i;
-//     }
-// }
-
 void updateRareCandy() {
     for (int i = 0; i < MAXRARECANDY; i++) {
         if (rareCandy[i].active && collision(player.x, player.y, player.width, player.height,
@@ -578,8 +582,8 @@ void drawHeal() {
 
 void drawHearts() {
     for (int i = 0; i < lives; i++) {
-        shadowOAM[lifeCount.oamIndex + i].attr0 = ATTR0_Y(lifeCount.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-        shadowOAM[lifeCount.oamIndex + i].attr1 = ATTR1_X(lifeCount.x + i * 10 - hOff) | ATTR1_SMALL;
+        shadowOAM[lifeCount.oamIndex + i].attr0 = ATTR0_Y(lifeCount.y) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[lifeCount.oamIndex + i].attr1 = ATTR1_X(lifeCount.x + i * 10) | ATTR1_SMALL;
         shadowOAM[lifeCount.oamIndex + i].attr2 = ATTR2_TILEID(4, 6);
     }
     for (int i = lives; i < 3; i++) {
@@ -588,7 +592,7 @@ void drawHearts() {
 }
 
 void initBrock() {
-    brock.x = 150;
+    brock.x = 120;
     brock.y = 150;
     brock.width = 16;
     brock.height = 16;
@@ -600,7 +604,7 @@ void initBrock() {
 void updateBrock() {
     if (brockState == IDLE) {
         if (collision(player.x, player.y, player.width, player.height, brock.x, brock.y, brock.width, brock.height)) {
-            goToGame4();
+            goToBattle();
         }
     } else if (brockState == TALKING) {
         if (BUTTON_PRESSED(BUTTON_A)) {
@@ -656,4 +660,123 @@ void drawBrock() {
 
     shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
     shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
+}
+
+void initBattle() {
+    charizard.x = 20;
+    charizard.y = 80;
+    charizard.oamIndex = 5;
+    charizard.width = 32;
+    charizard.height = 32;
+    charizardHP = 5;
+    charizardDamaged = 0;
+    charizardAttack = 1;
+
+    onyx.x = 140;
+    onyx.y = 20;
+    onyx.oamIndex = 6;
+    onyx.width = 32;
+    onyx.height = 32;
+    onyxHP = 5;
+    onyxDamaged = 0;
+    onyxAttack = 1;
+
+    charizardTurn = 1;
+    move = 0;
+    attackCooldown = 0;
+}
+
+void updateBattle() {
+    if (attackCooldown > 0) {
+        attackCooldown--;
+        return;
+    }
+
+    if (charizardTurn == 1) {
+        if (BUTTON_PRESSED(BUTTON_LEFT)) {
+            // Flamethrower
+            move = 0;
+        } 
+        if (BUTTON_PRESSED(BUTTON_RIGHT)) {
+            // Scratch
+            move = 1;
+        }
+        if (BUTTON_PRESSED(BUTTON_A)) {
+            // 85% chance of attack landing
+            if (rand() % 100 < 85) {
+                onyxHP--;
+                onyxDamaged = 10;
+            }
+            charizardTurn = 0;
+            attackCooldown = 20;
+        }
+    } 
+    else {
+        // Onyx's attack has an 80% chance of landing
+        if (attackCooldown <= 0) {
+            if (rand() % 100 < 80) {
+                charizardHP--;
+                charizardDamaged = 10;
+            }
+            charizardTurn = 1;
+            attackCooldown = 20;
+        }
+        }
+        if (charizardHP <= 0) {
+            level = 3;
+            shadowOAM[charizard.oamIndex].attr0 = ATTR0_HIDE;
+            shadowOAM[onyx.oamIndex].attr0 = ATTR0_HIDE;
+            goToGame3();
+        } else if (onyxHP <= 0) {
+            goToWin();
+        }
+}
+
+void drawBattle() {
+    // Draw Charizard
+    shadowOAM[charizard.oamIndex].attr0 = ATTR0_Y(charizard.y) | ATTR0_SQUARE | ATTR0_4BPP;
+    shadowOAM[charizard.oamIndex].attr1 = ATTR1_X(charizard.x) | ATTR1_LARGE;
+    
+    if (charizardDamaged > 0) {
+        shadowOAM[charizard.oamIndex].attr2 = ATTR2_TILEID(8, 8) | ATTR2_PALROW(0);
+        charizardDamaged--;
+    } else if (!charizardTurn) {
+        shadowOAM[charizard.oamIndex].attr2 = ATTR2_TILEID(8, 8);
+    } else {
+        shadowOAM[charizard.oamIndex].attr2 = ATTR2_TILEID(16, 8);
+    }
+
+    // Draw Onyx
+    shadowOAM[onyx.oamIndex].attr0 = ATTR0_Y(onyx.y) | ATTR0_SQUARE | ATTR0_4BPP;
+    shadowOAM[onyx.oamIndex].attr1 = ATTR1_X(onyx.x) | ATTR1_LARGE;
+    
+    if (onyxDamaged > 0) {
+        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(0, 16) | ATTR2_PALROW(0);
+        onyxDamaged--;
+    } else if (!charizardTurn) {
+        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(8, 16);
+    } else {
+        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(0, 16);
+    }
+
+    for (int i = 0; i < 5; i++) {
+        // Charizard HP
+        shadowOAM[20 + i].attr0 = ATTR0_Y(145) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[20 + i].attr1 = ATTR1_X(10 + i * 10) | ATTR1_TINY;
+        shadowOAM[20 + i].attr2 = ATTR2_TILEID(4, 6);
+
+        if (i >= charizardHP) {
+            shadowOAM[20 + i].attr0 |= ATTR0_HIDE;
+        }
+
+        // Onyx HP
+        shadowOAM[30 + i].attr0 = ATTR0_Y(5) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[30 + i].attr1 = ATTR1_X(200 - i * 10) | ATTR1_TINY;
+        shadowOAM[30 + i].attr2 = ATTR2_TILEID(4, 6);
+        if (i >= onyxHP) {
+            shadowOAM[30 + i].attr0 |= ATTR0_HIDE;
+        }
+    }
+    waitForVBlank();
+    DMANow(3, shadowOAM, OAM, 128*4);
 }
