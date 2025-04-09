@@ -155,9 +155,10 @@ void drawGame() {
     drawFireballs();
     drawRareCandy();
     drawBlaze();
-    // drawHeal();
-    // drawHearts();
 
+    if (level == 2) {
+        drawHeal();
+    }
     if (level == 3) {
         drawBrock();
     }
@@ -555,8 +556,12 @@ int exit2() {
 void initHeal() {
     healItem.width = 16;
     healItem.height = 16;
-    healItem.x = 120;
-    healItem.y = 128;
+
+    if (level == 2) {
+        healItem.x = 120;
+        healItem.y = 128;
+    }
+    
     healItem.active = 1;
     healItem.oamIndex = 60;
 }
