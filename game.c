@@ -66,8 +66,6 @@ int charizardHP;
 int onyxHP;
 int charizardDamaged;
 int onyxDamaged;
-int charizardAttack;
-int onyxAttack;
 int charizardTurn;
 int move;
 int attackCooldown;
@@ -672,7 +670,6 @@ void initBattle() {
     charizard.height = 32;
     charizardHP = 5;
     charizardDamaged = 0;
-    charizardAttack = 1;
 
     onyx.x = 140;
     onyx.y = 20;
@@ -681,7 +678,6 @@ void initBattle() {
     onyx.height = 32;
     onyxHP = 5;
     onyxDamaged = 0;
-    onyxAttack = 1;
 
     charizardTurn = 1;
     move = 0;

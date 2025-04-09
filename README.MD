@@ -72,6 +72,7 @@ DEBUGGING
 - I also did not hide the rare candies and just placed them in the center so they are easy to collect to test my game.
 - You're more likely to lose when you use scratch
 - You can access the exits once you're the next evolution. 
+- The fireball delay timer could cause you to die if you advance too quickly (because you aren't supposed to normally).
 
 ***INSTRUCTIONS FOR MY GAME***
 1. Check "navigation" for information on how to use my state machine
