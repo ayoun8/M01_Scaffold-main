@@ -67,10 +67,11 @@ DEBUGGING
     d. Press RSHOULDER to go to level 2
     e. Press LSHOULDER to go to level 3
 
-***Notes****
+***Notes***
 - My heal works and loads.
 - I also did not hide the rare candies and just placed them in the center so they are easy to collect to test my game.
 - You're more likely to lose when you use scratch
+- You can access the exits once you're the next evolution. 
 
 ***INSTRUCTIONS FOR MY GAME***
 1. Check "navigation" for information on how to use my state machine
@@ -86,10 +87,12 @@ DEBUGGING
         - You have 5 fireballs. Use them wisely. If you run out before finding all of the rare candy, you have to restart the level (but this won't be an issue yet because I made them all start active for ease). 
         - The candies spawn in the same spot every time you respawn, so this level is ultimately a memorization game. 
         - ***The fireballs need to be placed in the middle of the flowers. This is also a game of precision.***
+        - Once you evolve into charmeleon, you can access the exit. It is one of the doors- choose wisely.
     
     ***LEVEL 2***
     - It is the same concept for level 2. Find and collect rare candies then go through the fence to advance to level 3.
       - Collect the heal, your special item.
+      - You can access the exit (between the fence posts) once you are charizard.
     
     ***LEVEL 3***
     - Once in level 3, go collide with brock to start the boss battle
