@@ -123,6 +123,7 @@ void updateGame() {
             }
         }
 
+        // To show blaze animation before you lose
         if (fireballDelayTimer > 0) {
             fireballDelayTimer--;
             if (fireballDelayTimer == 0 && rareCandiesCollected < 3) {
@@ -473,7 +474,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 1;
+            rareCandy[i].active = 0;
             rareCandy[i].oamIndex = 50 + i;
         }
         for (int i = 3; i < MAXRARECANDY; i++) {
@@ -489,7 +490,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 1;
+            rareCandy[i].active = 0;
             rareCandy[i].oamIndex = 30 + i;
         }
     }
@@ -503,7 +504,7 @@ void updateRareCandy() {
             rareCandiesCollected++;
             shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_HIDE;
 
-            if (level == 2 && rareCandiesCollected == 6) {
+            if (level == 2 && rareCandiesCollected == 3) {
                 evolution = 2; // Charizard
             }
         }

@@ -327,7 +327,8 @@ void resume() {
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
 
     switch (level) {
-        case 1:
+        case 1: //if curr state is not pause, then reset the tiles, if not then keep tiles
+        // Move pause into separate background and slap it on (controls dont work anymore)
             DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
             DMANow(3, tilesetTiles, &CHARBLOCK[0], tilesetTilesLen/2);
             DMANow(3, background1Map, &SCREENBLOCK[28], background1Len/2);
@@ -360,6 +361,7 @@ void resume() {
     } else {
         state = GAME;
     }
+    // move into random screen block
 }
 
 void goToPause() {
