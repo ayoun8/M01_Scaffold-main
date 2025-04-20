@@ -74,6 +74,9 @@ int charizardTurn;
 int move;
 int attackCooldown;
 
+int onyxTimer;
+int charizardTimer;
+
 BROCKSTATE brockState;
 
 inline unsigned char colorAt(int x, int y){
@@ -227,11 +230,23 @@ void updatePlayer() {
 
     unsigned short tile = SCREENBLOCK[28].tilemap[OFFSET(tileX, tileY, 32)];
 
-    if (tile == 39 || tile == 40 || tile == 47 || tile == 48) {
-        if (fireballsRemaining < 2) {
-            fireballsRemaining += MAXFIREBALLS;
-            if (fireballsRemaining > 5) {
-                fireballsRemaining = 5;
+    if (level == 1) {
+        if (tile == 39 || tile == 40 || tile == 47 || tile == 48) {
+            if (fireballsRemaining < 2) {
+                fireballsRemaining += MAXFIREBALLS;
+                if (fireballsRemaining > 5) {
+                    fireballsRemaining = 5;
+                }
+            }
+        }
+    }
+    if (level == 2) {
+        if (tile == 44 || tile == 45 || tile == 46 || tile == 47) {
+            if (fireballsRemaining < 2) {
+                fireballsRemaining += MAXFIREBALLS;
+                if (fireballsRemaining > 5) {
+                    fireballsRemaining = 5;
+                }
             }
         }
     }
@@ -728,6 +743,9 @@ void updateBattle() {
             if (rand() % 100 < 85) {
                 onyxHP--;
                 onyxDamaged = 10;
+                onyxTimer = 45;
+                SPRITE_PAL[9] = RGB(31, 0, 0);
+                SPRITE_PAL[1] = RGB(31, 0, 0);
             }
             charizardTurn = 0;
             attackCooldown = 20;
@@ -739,6 +757,9 @@ void updateBattle() {
             if (rand() % 100 < 80) {
                 charizardHP--;
                 charizardDamaged = 10;
+                charizardTimer = 45;
+                SPRITE_PAL[10] = RGB(31, 0, 0);
+                SPRITE_PAL[5] = RGB(31, 0, 0);
             }
             charizardTurn = 1;
             attackCooldown = 20;
@@ -801,4 +822,20 @@ void drawBattle() {
     }
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 128*4);
+
+    // Restore sprite colors
+    if (charizardTimer > 0) {
+        charizardTimer--;
+        if (charizardTimer == 0) {
+            SPRITE_PAL[10] = RGB(31, 13, 9);
+            SPRITE_PAL[5] = RGB(7, 7, 15);
+        }
+    }
+    if (onyxTimer > 0) {
+        onyxTimer--;
+        if (onyxTimer == 0) {
+            SPRITE_PAL[9] = RGB(22, 22, 26);
+            SPRITE_PAL[1] = RGB(14, 20, 24);
+        }
+    }
 }

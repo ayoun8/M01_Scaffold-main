@@ -28,13 +28,12 @@
     e. IN LEVEL 2: 
         - B button: you can switch between the trainer and the pokemon
         - A button: you can release a fireball *ONLY* as a pokemon
-    d. IN LEVEL 4;
+    f. IN LEVEL 4;
         - LEFT: changes move to flamethrower
         - RIGHT: changes move to scratch
         - A: attack
     DEBUGGING
-    d. Press RSHOULDER to go to level 2
-    e. Press LSHOULDER to go to level 3
+    g. Press LSHOULDER to go to level 3
 5. FUNCTIONING STATES:
     a. *Start, instructions, game, pause, win, lose, battle* states are all implemented
         - ***Winning and losing conditions are also implemented***
@@ -51,17 +50,19 @@
 8. INSTRUCTIONS FOR ALL LEVELS
     - Detailed instructions that are accessible from the pause screen with RSHOULDER
 9. PARALLAX SCROLLING BACKGROUND FOR WIN SCREEN!
+10. SPRITE MODIFICATION- pokemon turn red when hit during the boss battle. 
+11. YOU CAN RECHARGE FIREBALLS NOW!!
+    - Touch a sign in any level! (There are multiple in level 1 but only 1 in level 2).
 
 ***What needs to be added for my final project***
 1. I still need to lock down my rare candy initialization
-    a. I left them active for you to make it easy to go through my game, but I feel like I can definitely get the hiccups under control by demo day.
-    b. They do work, but it's weird. Sometimes they work perfectly and sometimes they don't. 
+    a. I feel like I can definitely get the hiccups under control by demo day.
+    b. They do work, but it's weird. Sometimes they work perfectly and sometimes they spawn slightly off. 
 2. Final art:
     a. I need to add dialogue boxes.
     b. I need to add cut scenes.
-    c. ^ I actually will revisit these and I am not sure if I want them as a final requirement.
+    c. ^ I actually will revisit these and I am not sure if I want them as a final requirement. I could just keep brock stationary and non interactive. I was hoping to change these into stretch goals. 
         - I am slightly confused on what the requirements were because I wasn't sure what my feedback was. I thought dialogues and scenes were art, so I will add that for a final polish for my final project. 
-3. Finish the fireball recharge
 
 ***Bugs***
 1. Rare candy spawn positions aren't as accurate as I want them to be.
@@ -78,12 +79,17 @@ DEBUGGING
     e. Press LSHOULDER to go to level 3
 
 ***Notes***
+- I made the rare candies initialize unhidden so you don't have to search for them.
+    - To see how my game is supposed to work, you can change the "rareCandy[i].active = 0" to "rareCandy[i].active = 1" under //Hide in the function initRareCandy() in game.c. 
 - My heal works and loads.
 - I am going to add in a SECOND cheat- the thunderbolt that turns you into a pikachu. 
     - I am going to do this in the final project since the M03 instructions said we can save our chat for our final project. 
 - You're more likely to lose when you use scratch
 - You can access the exits once you're the next evolution. 
 - The fireball delay timer could cause you to die if you advance too quickly (because you aren't supposed to normally).
+
+FIREBALL LOCATIONS:
+
 
 ***INSTRUCTIONS FOR MY GAME***
 1. Check "navigation" for information on how to use my state machine
