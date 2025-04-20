@@ -5,6 +5,8 @@
         "lose.h": "c",
         "game.h": "c",
         "tileset.h": "c",
-        "background1.h": "c"
+        "background1.h": "c",
+        "background3.h": "c",
+        "instructions2.h": "c"
     }
 }

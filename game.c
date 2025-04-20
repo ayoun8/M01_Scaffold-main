@@ -422,6 +422,7 @@ void burn(int x, int y) {
 
             // Recharge fireballs
             if ((topLeft == 39) || (topRight == 40) || (bottomLeft == 47) || (bottomRight == 48)) {
+                // Change to add 5
                 fireballsRemaining++;
             }
             //break; // only burn one

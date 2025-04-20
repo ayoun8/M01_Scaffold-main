@@ -19,10 +19,21 @@
 // State .h files
 #include "start.h"
 #include "instructions.h"
+#include "instructions2.h"
+#include "instructions3.h"
+#include "instructions4.h"
+#include "instructions5.h"
 #include "game.h"
 #include "pause.h"
 #include "win.h"
 #include "lose.h"
+#include "digitalSound.h"
+#include "themeSong.h"
+#include "lrSong.h"
+#include "pgSong.h"
+#include "gymSong.h"
+#include "battleSong.h"
+#include "winSong.h"
 
 // Sprite variables
 OBJ_ATTR shadowOAM[128];
@@ -36,6 +47,7 @@ int vOff;
 unsigned short oldButtons;
 unsigned short buttons;
 int state;
+int prevState;
 
 // State enum
 enum {
@@ -129,6 +141,8 @@ void initialize() {
 }
 
 void goToStart() {
+    stopSounds();
+
     initGame();
 
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
@@ -141,6 +155,9 @@ void goToStart() {
     
     DMANow(3, shadowOAM, OAM, 512);
 
+    setupSounds();
+    playSoundA(themeSong_data, themeSong_length, 1);
+
     state = START;
 }
 
@@ -149,8 +166,8 @@ void start(){
         initGame();
         goToGame();
     }
-    if (BUTTON_PRESSED(BUTTON_SELECT)) {
-        goToInstructions();
+    if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
+            goToInstructions();
     }
 }
 
@@ -163,9 +180,29 @@ void goToInstructions() {
 
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
 
-    DMANow(3, instructionsPal, BG_PALETTE, instructionsPalLen / 2);
-    DMANow(3, instructionsTiles, &CHARBLOCK[0], instructionsTilesLen / 2);
-    DMANow(3, instructionsMap, &SCREENBLOCK[31], instructionsMapLen / 2);
+    prevState = state;
+
+    if (state == START) {
+        DMANow(3, instructionsPal, BG_PALETTE, instructionsPalLen / 2);
+        DMANow(3, instructionsTiles, &CHARBLOCK[0], instructionsTilesLen / 2);
+        DMANow(3, instructionsMap, &SCREENBLOCK[31], instructionsMapLen / 2);
+    } else if (level == 1) {
+        DMANow(3, instructions2Pal, BG_PALETTE, instructions2PalLen / 2);
+        DMANow(3, instructions2Tiles, &CHARBLOCK[0], instructions2TilesLen / 2);
+        DMANow(3, instructions2Map, &SCREENBLOCK[31], instructions2MapLen / 2);
+    } else if (level == 2) {
+        DMANow(3, instructions3Pal, BG_PALETTE, instructions3PalLen / 2);
+        DMANow(3, instructions3Tiles, &CHARBLOCK[0], instructions3TilesLen / 2);
+        DMANow(3, instructions3Map, &SCREENBLOCK[31], instructions3MapLen / 2);
+    } else if (level == 3) {
+        DMANow(3, instructions4Pal, BG_PALETTE, instructions4PalLen / 2);
+        DMANow(3, instructions4Tiles, &CHARBLOCK[0], instructions4TilesLen / 2);
+        DMANow(3, instructions4Map, &SCREENBLOCK[31], instructions4MapLen / 2);
+    } else if (level == 4) {
+        DMANow(3, instructions5Pal, BG_PALETTE, instructions5PalLen / 2);
+        DMANow(3, instructions5Tiles, &CHARBLOCK[0], instructions5TilesLen / 2);
+        DMANow(3, instructions5Map, &SCREENBLOCK[31], instructions5MapLen / 2);
+    } 
 
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 512);
@@ -179,11 +216,27 @@ void instructions() {
     DMANow(3, shadowOAM, OAM, 512);
 
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
+        switch(prevState) {
+            case START:
+                goToStart();
+                break;
+            case GAME:
+                resume();
+                break;
+            case PAUSE:
+                resume();
+                break;
+            case BATTLE:
+                resume();
+                break;
+        }
+        
     }
 }
 
 void goToGame() {
+    stopSounds();
+
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(28) | BG_SIZE_SMALL;
 
     DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
@@ -194,10 +247,15 @@ void goToGame() {
     
     DMANow(3, shadowOAM, OAM, 512);
 
+    pauseSounds();
+    playSoundA(lrSong_data, lrSong_length, 1);
+
     state = GAME;
 }
 
 void goToGame2() {
+    stopSounds();
+
     clearRareCandy();
     
     level = 2;
@@ -217,9 +275,16 @@ void goToGame2() {
 
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 512);
+
+    pauseSounds();
+    playSoundA(pgSong_data, pgSong_length, 1);
+
+    state == GAME;
 }
 
 void goToGame3() {
+    stopSounds();
+    
     hideSprites();
     clearRareCandy();
 
@@ -243,6 +308,9 @@ void goToGame3() {
     waitForVBlank();
     DMANow(3, shadowOAM, OAM, 512);
 
+    pauseSounds();
+    playSoundA(gymSong_data, gymSong_length, 1);
+
     state = GAME;
 }
 
@@ -259,6 +327,8 @@ void battle() {
 }
 
 void goToBattle() {
+    stopSounds();
+
     hideSprites();
     clearRareCandy();
 
@@ -279,6 +349,10 @@ void goToBattle() {
     DMANow(3, shadowOAM, OAM, 512);
 
     initBattle();
+
+    pauseSounds();
+    playSoundA(battleSong_data, battleSong_length, 1);
+
     state = BATTLE;
 
 }
@@ -288,9 +362,9 @@ void game(){
     drawGame();
 
     // Debug
-    if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
-        goToGame2();
-    }
+    // if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
+    //     goToGame2();
+    // }
     if (BUTTON_PRESSED(BUTTON_LSHOULDER)) {
         goToGame3();
     }
@@ -371,11 +445,11 @@ void goToPause() {
     REG_BG0HOFF = hOff;
     REG_BG0VOFF = vOff;
 
-    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
-
     DMANow(3, pausePal, BG_PALETTE, pausePalLen / 2);
-    DMANow(3, pauseTiles, &CHARBLOCK[0], pauseTilesLen/2);
-    DMANow(3, pauseMap, &SCREENBLOCK[31], pauseMapLen/2);
+    DMANow(3, pauseTiles, &CHARBLOCK[1], pauseTilesLen/2);
+    DMANow(3, pauseMap, &SCREENBLOCK[30], pauseMapLen/2);
+
+    REG_BG0CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(30) | BG_SIZE_SMALL;
 
     state = PAUSE;
 }
@@ -391,6 +465,9 @@ void pause(){
     if (BUTTON_PRESSED(BUTTON_SELECT)) {
         goToStart();
     }
+    if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
+        goToInstructions();
+    }
 }
 
 void goToWin() {
@@ -405,6 +482,9 @@ void goToWin() {
     DMANow(3, winPal, BG_PALETTE, winPalLen / 2);
     DMANow(3, winTiles, &CHARBLOCK[0], winTilesLen/2);
     DMANow(3, winMap, &SCREENBLOCK[31], winMapLen/2);
+
+    pauseSounds();
+    playSoundA(winSong_data, winSong_length, 1);
 
     state = WIN;
 }      

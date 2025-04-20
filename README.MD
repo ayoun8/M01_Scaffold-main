@@ -92,8 +92,8 @@ DEBUGGING
     
     ***LEVEL 2***
     - It is the same concept for level 2. Find and collect rare candies then go through the fence to advance to level 3.
-      - Collect the heal, your special item.
-      - You can access the exit (between the fence posts) once you are charizard.
+      - Collect the heal and lightning bolt, your special item.
+      - You can leave out of the fence once you are charizard. 
     
     ***LEVEL 3***
     - Once in level 3, go collide with brock to start the boss battle
