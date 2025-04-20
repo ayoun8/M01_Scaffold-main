@@ -20,6 +20,10 @@
 #include "background4.h"
 #include "tileset4.h"
 
+#include "digitalSound.h"
+#include "burnSound.h"
+#include "roarSound.h"
+
 // Global variable definitions
 SPRITE player;
 SPRITE fireballs[MAXFIREBALLS];
@@ -218,6 +222,20 @@ void updatePlayer() {
         player.isAnimating = 1;
     }
 
+    int tileX = (player.x + player.width / 2) / 8;
+    int tileY = (player.y + player.height / 2) / 8;
+
+    unsigned short tile = SCREENBLOCK[28].tilemap[OFFSET(tileX, tileY, 32)];
+
+    if (tile == 39 || tile == 40 || tile == 47 || tile == 48) {
+        if (fireballsRemaining < 2) {
+            fireballsRemaining += MAXFIREBALLS;
+            if (fireballsRemaining > 5) {
+                fireballsRemaining = 5;
+            }
+        }
+    }
+
     if (BUTTON_PRESSED(BUTTON_B)) {
         isPokemon = !isPokemon;
     }
@@ -291,6 +309,9 @@ void initFireballs() {
 }
 
 void placeFireball() {
+
+    playSoundB(burnSound_data, burnSound_length, 0);
+
     if (fireballsRemaining > 0) {
         for (int i = 0; i < MAXFIREBALLS; i++) {
             if (!fireballs[i].active) {
@@ -702,6 +723,7 @@ void updateBattle() {
             move = 1;
         }
         if (BUTTON_PRESSED(BUTTON_A)) {
+            playSoundB(roarSound_data, roarSound_length, 0);
             // 85% chance of attack landing
             if (rand() % 100 < 85) {
                 onyxHP--;

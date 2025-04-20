@@ -1,5 +1,5 @@
 ***What my game has so far***
-1. FULLS SPRITESHEET
+1. FULL SPRITESHEET
     a. A *trainer* with three frames of animation per direction
     b. *Charmander* with three frames of animation per direction
     c. The fireball, heal, heart, explosions, and rare candy are also done
@@ -45,6 +45,9 @@
 7. LOOPING SONGS FOR EVERY LEVEL
     - Does not mix up with the other sounds
     - Pause is successful (small error with tiles but will fix for final project)
+7a. OVERLAPPING SOUND WITH LOOPING SOUND
+    - Fire woosh noise when you place a fireball
+    - Charizard roar when he attacks
 8. INSTRUCTIONS FOR ALL LEVELS
     - Detailed instructions that are accessible from the pause screen with RSHOULDER
 9. PARALLAX SCROLLING BACKGROUND FOR WIN SCREEN!
@@ -52,11 +55,12 @@
 ***What needs to be added for my final project***
 1. I still need to lock down my rare candy initialization
     a. I left them active for you to make it easy to go through my game, but I feel like I can definitely get the hiccups under control by demo day.
+    b. They do work, but it's weird. Sometimes they work perfectly and sometimes they don't. 
 2. Final art:
     a. I need to add dialogue boxes.
     b. I need to add cut scenes.
     c. ^ I actually will revisit these and I am not sure if I want them as a final requirement.
-        - I am slightly confused on what the requirements were because I could not see my feedback, but I thought dialogues and scenes were art, so I will add that for a final polish for my final project. 
+        - I am slightly confused on what the requirements were because I wasn't sure what my feedback was. I thought dialogues and scenes were art, so I will add that for a final polish for my final project. 
 3. Finish the fireball recharge
 
 ***Bugs***

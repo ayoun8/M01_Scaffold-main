@@ -128,7 +128,7 @@ int main() {
 }
 
 void initialize() {
-    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | BG_ENABLE(1) | SPRITE_ENABLE;
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
 
     // Load sprites into memory
     DMANow(3, &spritesheetTiles, &CHARBLOCK[4], spritesheetTilesLen/2); 
@@ -474,6 +474,7 @@ void pause(){
 }
 
 void goToWin() {
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | BG_ENABLE(1) | SPRITE_ENABLE;
     vOff = 0;
     REG_BG0VOFF = vOff;
 
@@ -481,12 +482,12 @@ void goToWin() {
     REG_BG1CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(30) | BG_SIZE_SMALL;
 
     DMANow(3, cloudsPal, BG_PALETTE, cloudsPalLen / 2);
-    DMANow(3, cloudsTiles, &CHARBLOCK[1], cloudsTilesLen/2);
-    DMANow(3, cloudsMap, &SCREENBLOCK[30], cloudsMapLen/2);
+    DMANow(3, cloudsTiles, &CHARBLOCK[0], cloudsTilesLen/2);
+    DMANow(3, cloudsMap, &SCREENBLOCK[31], cloudsMapLen/2);
 
     DMANow(3, pokemonPal, BG_PALETTE, pokemonPalLen / 2);
-    DMANow(3, pokemonTiles, &CHARBLOCK[0], pokemonTilesLen/2);
-    DMANow(3, pokemonMap, &SCREENBLOCK[31], pokemonMapLen/2);
+    DMANow(3, pokemonTiles, &CHARBLOCK[1], pokemonTilesLen/2);
+    DMANow(3, pokemonMap, &SCREENBLOCK[30], pokemonMapLen/2);
 
     pauseSounds();
     playSoundA(winSong_data, winSong_length, 1);
@@ -499,10 +500,10 @@ void win(){
     hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
 
-    cloudOff+= 2;
-    pokemonOff--;
-    REG_BG0HOFF = pokemonOff;
-    REG_BG1HOFF = cloudOff;
+    cloudOff += 3;
+    pokemonOff += 1;
+    REG_BG0HOFF = cloudOff;
+    REG_BG1HOFF = pokemonOff;
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
