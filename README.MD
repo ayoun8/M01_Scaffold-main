@@ -42,21 +42,27 @@
             - To lose, lose to onyx, respawn to level 3
         - All states are functional.
 6. FUNCTIONING TILEMAP AND TILESET FOR ALL FOUR LEVELS
+7. LOOPING SONGS FOR EVERY LEVEL
+    - Does not mix up with the other sounds
+    - Pause is successful (small error with tiles but will fix for final project)
+8. INSTRUCTIONS FOR ALL LEVELS
+    - Detailed instructions that are accessible from the pause screen with RSHOULDER
+9. PARALLAX SCROLLING BACKGROUND FOR WIN SCREEN!
 
-***What needs to be added for my next milestone***
-1. I need to lock down my rare candy initialization
-    a. I need to initialize the candies as inactive (they're not truly hidden for now for easy debugging and level traversing)
-2. Art:
-    a. I need to add dialogue boxes
-    b. I need to add instructions
-    c. I need to add sounds and music
-    d. I need to add a parallax background
-    e. I need to add cut scenes.
-3. Finish the fireball counter and recharge
+***What needs to be added for my final project***
+1. I still need to lock down my rare candy initialization
+    a. I left them active for you to make it easy to go through my game, but I feel like I can definitely get the hiccups under control by demo day.
+2. Final art:
+    a. I need to add dialogue boxes.
+    b. I need to add cut scenes.
+    c. ^ I actually will revisit these and I am not sure if I want them as a final requirement.
+        - I am slightly confused on what the requirements were because I could not see my feedback, but I thought dialogues and scenes were art, so I will add that for a final polish for my final project. 
+3. Finish the fireball recharge
 
 ***Bugs***
 1. Rare candy spawn positions aren't as accurate as I want them to be.
 2. The pause pauses things well but also regenerates the burnt tiles (but still keeps your progress).
+3. ^ I am still working on them. They don't destroy the game play, since the rare candy will still spawn if you hit a nearby coordinate and the pause still pauses the game and keeps the progress. I will clean this up for the final project. 
 
 ***NAVIGATION***
 a. Press START to start
@@ -69,7 +75,8 @@ DEBUGGING
 
 ***Notes***
 - My heal works and loads.
-- I also did not hide the rare candies and just placed them in the center so they are easy to collect to test my game.
+- I am going to add in a SECOND cheat- the thunderbolt that turns you into a pikachu. 
+    - I am going to do this in the final project since the M03 instructions said we can save our chat for our final project. 
 - You're more likely to lose when you use scratch
 - You can access the exits once you're the next evolution. 
 - The fireball delay timer could cause you to die if you advance too quickly (because you aren't supposed to normally).

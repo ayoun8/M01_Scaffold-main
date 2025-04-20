@@ -25,7 +25,6 @@
 #include "instructions5.h"
 #include "game.h"
 #include "pause.h"
-#include "win.h"
 #include "lose.h"
 #include "digitalSound.h"
 #include "themeSong.h"
@@ -34,6 +33,8 @@
 #include "gymSong.h"
 #include "battleSong.h"
 #include "winSong.h"
+#include "clouds.h"
+#include "pokemon.h"
 
 // Sprite variables
 OBJ_ATTR shadowOAM[128];
@@ -42,6 +43,8 @@ SPRITE player;
 // Surrogate variables
 int hOff;
 int vOff;
+int cloudOff;
+int pokemonOff;
 
 // Variables
 unsigned short oldButtons;
@@ -125,7 +128,7 @@ int main() {
 }
 
 void initialize() {
-    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
+    REG_DISPCTL = MODE(0) | BG_ENABLE(0) | BG_ENABLE(1) | SPRITE_ENABLE;
 
     // Load sprites into memory
     DMANow(3, &spritesheetTiles, &CHARBLOCK[4], spritesheetTilesLen/2); 
@@ -471,17 +474,19 @@ void pause(){
 }
 
 void goToWin() {
-    hOff = 256;
     vOff = 0;
-
-    REG_BG0HOFF = hOff;
     REG_BG0VOFF = vOff;
 
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
+    REG_BG1CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(30) | BG_SIZE_SMALL;
 
-    DMANow(3, winPal, BG_PALETTE, winPalLen / 2);
-    DMANow(3, winTiles, &CHARBLOCK[0], winTilesLen/2);
-    DMANow(3, winMap, &SCREENBLOCK[31], winMapLen/2);
+    DMANow(3, cloudsPal, BG_PALETTE, cloudsPalLen / 2);
+    DMANow(3, cloudsTiles, &CHARBLOCK[1], cloudsTilesLen/2);
+    DMANow(3, cloudsMap, &SCREENBLOCK[30], cloudsMapLen/2);
+
+    DMANow(3, pokemonPal, BG_PALETTE, pokemonPalLen / 2);
+    DMANow(3, pokemonTiles, &CHARBLOCK[0], pokemonTilesLen/2);
+    DMANow(3, pokemonMap, &SCREENBLOCK[31], pokemonMapLen/2);
 
     pauseSounds();
     playSoundA(winSong_data, winSong_length, 1);
@@ -493,6 +498,11 @@ void win(){
     waitForVBlank();
     hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
+
+    cloudOff+= 2;
+    pokemonOff--;
+    REG_BG0HOFF = pokemonOff;
+    REG_BG1HOFF = cloudOff;
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToStart();
