@@ -511,7 +511,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 0;
+            rareCandy[i].active = 1;
             rareCandy[i].oamIndex = 50 + i;
         }
         for (int i = 3; i < MAXRARECANDY; i++) {
@@ -527,7 +527,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 0;
+            rareCandy[i].active = 1;
             rareCandy[i].oamIndex = 30 + i;
         }
     }

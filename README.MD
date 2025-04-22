@@ -46,7 +46,7 @@
     - Pause is successful (small error with tiles but will fix for final project)
 7a. OVERLAPPING SOUND WITH LOOPING SOUND
     - Fire woosh noise when you place a fireball
-    - Charizard roar when he attacks
+    - Charizard roars when he attacks
 8. INSTRUCTIONS FOR ALL LEVELS
     - Detailed instructions that are accessible from the pause screen with RSHOULDER
 9. PARALLAX SCROLLING BACKGROUND FOR WIN SCREEN!

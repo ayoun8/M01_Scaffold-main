@@ -282,7 +282,7 @@ void goToGame2() {
     pauseSounds();
     playSoundA(pgSong_data, pgSong_length, 1);
 
-    state == GAME;
+    state = GAME;
 }
 
 void goToGame3() {
