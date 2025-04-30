@@ -617,15 +617,30 @@ void drawHearts() {
 
 void initBrock() {
     brock.x = 120;
-    brock.y = 150;
+    brock.y = 100;
     brock.width = 16;
     brock.height = 16;
-    brock.oamIndex = 80;
+    brock.oamIndex = 59;
     brock.speed = 1;
+
     brockState = IDLE;
 }
 
+void initBrockDialog() {
+    brock.x = 128;
+    brock.y = 58;
+    brock.width = 32;
+    brock.height = 32;
+    brock.oamIndex = 59;
+
+    brockState = TALKING;
+}
+
 void updateBrock() {
+    if (brockState == TALKING) {
+        initBrock();
+    }
+
     if (brockState == IDLE) {
         if (collision(player.x, player.y, player.width, player.height, brock.x, brock.y, brock.width, brock.height)) {
             goToBattle();
@@ -674,16 +689,19 @@ void updateBrockMovement() {
 }
 
 void drawBrock() {
+    shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+    shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
+
     if (brockState == IDLE) {
         shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(0, 8);
     } else if (brockState == TALKING) {
-        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(2, 8);
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(16, 16);
+
+        shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x) | ATTR1_LARGE;
     } else if (brockState == MOVING) {
         shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(4, 8);
     }
-
-    shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-    shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
 }
 
 void initBattle() {
@@ -730,8 +748,8 @@ void updateBattle() {
                 onixHP--;
                 onixDamaged = 10;
                 onixTimer = 45;
-                SPRITE_PAL[9] = RGB(31, 0, 0);
-                SPRITE_PAL[1] = RGB(31, 0, 0);
+                SPRITE_PAL[10] = RGB(31, 0, 0);
+                SPRITE_PAL[2] = RGB(31, 0, 0);
             }
             charizardTurn = 0;
             attackCooldown = 20;
@@ -744,8 +762,8 @@ void updateBattle() {
                 charizardHP--;
                 charizardDamaged = 10;
                 charizardTimer = 45;
-                SPRITE_PAL[10] = RGB(31, 0, 0);
-                SPRITE_PAL[5] = RGB(31, 0, 0);
+                SPRITE_PAL[11] = RGB(31, 0, 0);
+                SPRITE_PAL[6] = RGB(31, 0, 0);
             }
             charizardTurn = 1;
             attackCooldown = 20;
@@ -813,15 +831,15 @@ void drawBattle() {
     if (charizardTimer > 0) {
         charizardTimer--;
         if (charizardTimer == 0) {
-            SPRITE_PAL[10] = RGB(31, 13, 9);
-            SPRITE_PAL[5] = RGB(7, 7, 15);
+            SPRITE_PAL[11] = RGB(31, 13, 9);
+            SPRITE_PAL[6] = RGB(7, 7, 15);
         }
     }
     if (onixTimer > 0) {
         onixTimer--;
         if (onixTimer == 0) {
-            SPRITE_PAL[9] = RGB(22, 22, 26);
-            SPRITE_PAL[1] = RGB(14, 20, 24);
+            SPRITE_PAL[10] = RGB(22, 22, 26);
+            SPRITE_PAL[2] = RGB(14, 20, 24);
         }
     }
 }

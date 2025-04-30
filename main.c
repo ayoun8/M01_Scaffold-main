@@ -34,6 +34,7 @@
 #include "winSong.h"
 #include "clouds.h"
 #include "pokemon.h"
+#include "dialog.h"
 
 // Sprite variables
 OBJ_ATTR shadowOAM[128];
@@ -300,8 +301,16 @@ void goToGame3() {
     rareCandiesCollected = 0;
 
     initPlayer();
-    initBrock();
-    // initDialogue();
+    initBrockDialog();
+
+    const char* brockDialog[] = {
+        "Hello trainer",
+        "My name is brock#and this is my#gym",
+        "You are welcome#to challenge me#anytime you want",
+        "Step up to me when#you are ready"
+    };
+    
+    startMultiDialog(brockDialog, 4, 1, 1, 0);
 
     player.x = 130;
     player.y = 235;
@@ -366,8 +375,18 @@ void goToBattle() {
 }
 
 void game(){
-    updateGame();
     drawGame();
+
+    if (dialogBox.active) {
+        updateDialog();
+        drawDialog();
+
+        if (dialogBox.pauseGame) {
+            return;
+        }
+    }
+
+    updateGame();
 
     // Debug
     // if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
