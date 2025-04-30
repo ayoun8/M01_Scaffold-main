@@ -63,7 +63,7 @@ int rareCandiesCollected = 0;
 int fireballsRemaining = 5;
 int fireballDelayTimer = 0;
 
-int gameLost = 0;
+// int gameLost = 0;
 int level = 1;
 
 int charizardHP;
@@ -103,7 +103,6 @@ void initGame() {
     rareCandiesCollected = 0;
     evolution = 0;
     isPokemon = 0;
-    gameLost = 0;
     level = 1;
 
     lifeCount.x = 45;
@@ -114,42 +113,32 @@ void initGame() {
 }
 
 void updateGame() {
-    if (!gameLost) {
-        updatePlayer();
-        updateFireballs();
-        updateRareCandy();
-        updateHeal();
-        updateBlaze();
+    updatePlayer();
+    updateFireballs();
+    updateRareCandy();
+    updateHeal();
+    updateBlaze();
 
-        if (level == 1 && rareCandiesCollected == 3) {
-            evolution = 1;
-            if (exit1()) {
-                fireballsRemaining = 5;
-                fireballDelayTimer = 60;
-                goToGame2();
-            }
+    if (level == 1 && rareCandiesCollected == 3) {
+        evolution = 1;
+        if (exit1()) {
+            fireballsRemaining = 5;
+            fireballDelayTimer = 60;
+            goToGame2();
         }
+    }
 
-        // To show blaze animation before you lose
-        if (fireballDelayTimer > 0) {
-            fireballDelayTimer--;
-            if (fireballDelayTimer == 0 && rareCandiesCollected < 3) {
-                gameLost = 1;
-            }
+    if (level == 2) {
+        if (rareCandiesCollected == 3 && exit2()) {
+            evolution = 2;
+            goToGame3();
         }
-
-        if (level == 2) {
-            if (rareCandiesCollected == 3 && exit2()) {
-                evolution = 2;
-                goToGame3();
-            }
-        }
-        if (level == 3) {
-            updateBrock();
-        }
-        if (level == 4) {
-            updateBattle();
-        }
+    }
+    if (level == 3) {
+        updateBrock();
+    }
+    if (level == 4) {
+        updateBattle();
     }
 }
 
@@ -363,9 +352,6 @@ void drawFireballs() {
         }
     }
 }
-
-// void drawFireballTracker() {
-// }
 
 void burn(int x, int y) {
     // Flowers

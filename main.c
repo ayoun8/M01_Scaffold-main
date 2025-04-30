@@ -25,7 +25,6 @@
 #include "instructions5.h"
 #include "game.h"
 #include "pause.h"
-#include "lose.h"
 #include "digitalSound.h"
 #include "themeSong.h"
 #include "lrSong.h"
@@ -58,7 +57,6 @@ enum {
     GAME,
     PAUSE,
     WIN,
-    LOSE,
     INSTRUCTIONS, 
     BATTLE
 };
@@ -75,14 +73,12 @@ void goToGame2();
 void goToGame3();
 void goToPause();
 void goToWin();
-void goToLose();
 
 void start();
 void game();
 void instructions();
 void pause();
 void win();
-void lose();
 
 void battle();
 
@@ -116,9 +112,6 @@ int main() {
             case WIN:
                 win();
                 break;
-            case LOSE:
-                lose();
-                break;
             case BATTLE:
                 battle();
                 break;
@@ -139,13 +132,14 @@ void initialize() {
     // Initialize hOff and vOff
     hOff = 0;
     vOff = 0;
+    REG_BG0HOFF = hOff;
+    REG_BG0VOFF = vOff;
 
     goToStart();
 }
 
 void goToStart() {
     stopSounds();
-
     initGame();
 
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
@@ -286,6 +280,11 @@ void goToGame2() {
 }
 
 void goToGame3() {
+    DMANow(3, &spritesheetTiles, &CHARBLOCK[4], spritesheetTilesLen/2); 
+    DMANow(3, &spritesheetPal, SPRITE_PAL, spritesheetPalLen/2);
+    hideSprites();
+    DMANow(3, shadowOAM, OAM, 512);
+    
     stopSounds();
     
     hideSprites();
@@ -375,9 +374,6 @@ void game(){
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
     }
-    if (gameLost) {
-        goToLose();
-    }
     
     if (level == 1) {
         if (rareCandiesCollected >= 3 && exit1()) {
@@ -408,22 +404,22 @@ void resume() {
         // Move pause into separate background and slap it on (controls dont work anymore)
             DMANow(3, tilesetPal, BG_PALETTE, tilesetPalLen / 2);
             DMANow(3, tilesetTiles, &CHARBLOCK[0], tilesetTilesLen/2);
-            DMANow(3, background1Map, &SCREENBLOCK[28], background1Len/2);
+            DMANow(3, background1Map, &SCREENBLOCK[31], background1Len/2);
             break;
         case 2:
             DMANow(3, tileset2Pal, BG_PALETTE, tileset2PalLen / 2);
             DMANow(3, tileset2Tiles, &CHARBLOCK[0], tileset2TilesLen/2);
-            DMANow(3, background2Map, &SCREENBLOCK[28], background2Len/2);
+            DMANow(3, background2Map, &SCREENBLOCK[31], background2Len/2);
             break;
         case 3:
             DMANow(3, tileset3Pal, BG_PALETTE, tileset3PalLen / 2);
             DMANow(3, tileset3Tiles, &CHARBLOCK[0], tileset3TilesLen/2);
-            DMANow(3, background3Map, &SCREENBLOCK[28], background3Len/2);
+            DMANow(3, background3Map, &SCREENBLOCK[31], background3Len/2);
             break;
         case 4:
             DMANow(3, tileset4Pal, BG_PALETTE, tileset4PalLen / 2);
             DMANow(3, tileset4Tiles, &CHARBLOCK[0], tileset4TilesLen/2);
-            DMANow(3, background4Map, &SCREENBLOCK[28], background4Len/2);
+            DMANow(3, background4Map, &SCREENBLOCK[31], background4Len/2);
             break;
     }
 
@@ -438,7 +434,6 @@ void resume() {
     } else {
         state = GAME;
     }
-    // move into random screen block
 }
 
 void goToPause() {
@@ -449,10 +444,10 @@ void goToPause() {
     REG_BG0VOFF = vOff;
 
     DMANow(3, pausePal, BG_PALETTE, pausePalLen / 2);
-    DMANow(3, pauseTiles, &CHARBLOCK[1], pauseTilesLen/2);
-    DMANow(3, pauseMap, &SCREENBLOCK[30], pauseMapLen/2);
+    DMANow(3, pauseTiles, &CHARBLOCK[0], pauseTilesLen/2);
+    DMANow(3, pauseMap, &SCREENBLOCK[31], pauseMapLen/2);
 
-    REG_BG0CNT = BG_CHARBLOCK(1) | BG_SCREENBLOCK(30) | BG_SIZE_SMALL;
+    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
 
     state = PAUSE;
 }
@@ -466,7 +461,7 @@ void pause(){
         resume();
     }
     if (BUTTON_PRESSED(BUTTON_SELECT)) {
-        goToStart();
+        initialize();
     }
     if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
         goToInstructions();
@@ -506,32 +501,6 @@ void win(){
     REG_BG1HOFF = pokemonOff;
 
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
-    }
-}
-
-void goToLose() {
-    hOff = 256;
-    vOff = 0;
-
-    REG_BG0HOFF = hOff;
-    REG_BG0VOFF = vOff;
-
-    REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
-
-    DMANow(3, losePal, BG_PALETTE, losePalLen / 2);
-    DMANow(3, loseTiles, &CHARBLOCK[0], loseTilesLen/2);
-    DMANow(3, loseMap, &SCREENBLOCK[31], loseMapLen/2);
-
-    state = LOSE;
-}
-
-void lose(){
-    waitForVBlank();
-    hideSprites();
-    DMANow(3, shadowOAM, OAM, 512);
-
-    if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
+        initialize();
     }
 }
