@@ -72,7 +72,7 @@ void goToStart();
 void goToInstructions();
 void goToGame();
 void goToGame2();
-void goToGame3();
+void goToGame3(int skipDialog);
 void goToPause();
 void goToWin();
 
@@ -244,6 +244,15 @@ void goToGame() {
     playSoundA(lrSong_data, lrSong_length, 1);
     initGame();
 
+    const char* startDialog[] = {
+        "Press RSHOULDER to#continue dialogue",
+        "Welcome to LittleRoot",
+        "Find out how to release#your pokemon",
+        "Find and collect#rare candies#to evolve",
+        "Find your way to#Petalburg Forest"
+    };
+    
+    startMultiDialog(startDialog, 5, 1, 1, 0);
     state = GAME;
 }
 
@@ -273,29 +282,32 @@ void goToGame2() {
     state = GAME;
 }
 
-void goToGame3() {
+void goToGame3(int skipDialog) {
     DMANow(3, &spritesheetTiles, &CHARBLOCK[4], spritesheetTilesLen/2); 
     DMANow(3, &spritesheetPal, SPRITE_PAL, spritesheetPalLen/2);
-    hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
 
     stopSounds();
-    
-    hideSprites();
 
     level = 3;
 
+    clearRareCandy();
     initPlayer();
-    initBrockDialog();
-
-    const char* brockDialog[] = {
-        "Hello trainer",
-        "My name is brock#and this is my#gym",
-        "You are welcome#to challenge me#anytime you want",
-        "Step up to me when#you are ready"
-    };
     
-    startMultiDialog(brockDialog, 4, 1, 1, 0);
+    if (skipDialog) {
+        initBrock();
+    } else {
+        initBrockDialog();
+
+        const char* brockDialog[] = {
+            "Hello trainer",
+            "My name is brock#and this is my#gym",
+            "You are welcome#to challenge me#anytime you want",
+            "Step up to me when#you are ready"
+        };
+    
+        startMultiDialog(brockDialog, 4, 1, 1, 0);
+    }
 
     player.x = 130;
     player.y = 235;
@@ -378,7 +390,7 @@ void game(){
     //     goToGame2();
     // }
     if (BUTTON_PRESSED(BUTTON_LSHOULDER)) {
-        goToGame3();
+        goToGame3(0);
     }
 
     if (BUTTON_PRESSED(BUTTON_START)) {

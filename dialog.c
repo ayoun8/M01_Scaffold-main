@@ -71,18 +71,8 @@ void updateDialog() {
             if (dialogBox.currCharIndex < strlen(dialogBox.message)) {
                 // Skip to end of message
                 dialogBox.currCharIndex = strlen(dialogBox.message);
-            } else {
-                // Go to next message
-                if (dialogBox.currentMessage + 1 < dialogBox.numMessages) {
-                    dialogBox.currentMessage++;
-                    dialogBox.message = dialogBox.messages[dialogBox.currentMessage];
-                    dialogBox.currCharIndex = 0;
-                } else {
-                    closeDialog();
-                }
-            }
-            // Go to next message WITH RSHOULDER
-            if (dialogBox.currentMessage + 1 < dialogBox.numMessages) {
+            } else if (dialogBox.currentMessage + 1 < dialogBox.numMessages) {
+                // Go to next message WITH RSHOULDER
                 dialogBox.currentMessage++;
                 dialogBox.message = dialogBox.messages[dialogBox.currentMessage];
                 dialogBox.currCharIndex = 0;

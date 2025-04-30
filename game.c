@@ -23,6 +23,8 @@
 #include "digitalSound.h"
 #include "burnSound.h"
 #include "roarSound.h"
+#include "cheatSound.h"
+#include "scratchSound.h"
 
 #include "dialog.h"
 
@@ -65,6 +67,7 @@ int evolution = 0; // 0 = Charmander, 1 = Charmeleon, 2 = Charizard
 int rareCandiesCollected = 0;
 int fireballsRemaining = 5;
 int fireballDelayTimer = 0;
+int cheat = 0;
 
 // int gameLost = 0;
 int level = 1;
@@ -101,8 +104,8 @@ void initGame() {
     initPlayer();
     initFireballs();
     initRareCandy();
-    initHeal();
     initBlaze();
+    clearHeal();
 
     lives = 3;
     fireballsRemaining = 5;
@@ -116,6 +119,7 @@ void initGame() {
     lifeCount.width = 16;
     lifeCount.height = 16;
     lifeCount.oamIndex = 18;
+    healItem.oamIndex = 60;
 }
 
 void updateGame() {
@@ -129,7 +133,10 @@ void updateGame() {
         if (evolution == 1) {
             fireballsRemaining = 5;
             fireballDelayTimer = 60;
+            dialogDelay = 200;
+            dialogDelayCounter = 200;
             goToGame2();
+            return;
         } else {
             if (dialogBox.active == 0) {
                 dialogDelayCounter++;
@@ -141,9 +148,18 @@ void updateGame() {
         }
     }
 
-    if (exit2()) {
-        if (level == 2 && evolution == 2) {
-            goToGame3();
+    if (level == 2 && exit2()) {
+        if (evolution == 2) {
+            goToGame3(0);
+            return;
+        } else {
+            if (dialogBox.active == 0) {
+                dialogDelayCounter++;
+                if (dialogDelayCounter >= dialogDelay) {
+                    dialogDelayCounter = 0;
+                    startDialog("You are not the#evolution I seek#You are too weak", 1, 1, 0);
+                }
+            }
         }
     }
     if (level == 3) {
@@ -160,7 +176,7 @@ void drawGame() {
     drawRareCandy();
     drawBlaze();
 
-    if (level == 2) {
+    if (level == 1 && healItem.active) {
         drawHeal();
     }
     if (level == 3) {
@@ -366,65 +382,74 @@ void drawFireballs() {
 }
 
 void burn(int x, int y) {
-    // Flowers
     int tx = x / 8;
     int ty = y / 8;
 
-    int offsets[4][2] = {
-        {0, 0}, // top-left
-        {-1, 0}, // top-right
-        {0, -1}, // bottom-left
-        {-1, -1} // bottom-right
-    };
+    int startX = (cheat == 1) ? tx - 3 : tx - 1;
+    int startY = (cheat == 1) ? ty - 3 : ty - 1;
+    int endX = (cheat == 1) ? tx + 3 : tx + 1;
+    int endY = (cheat == 1) ? ty + 3 : ty + 1;
 
-    for (int i = 0; i < 4; i++) {
-        int topLeftX = tx + offsets[i][0];
-        int topLeftY = ty + offsets[i][1];
+    int burned = 0;
 
-        if (level == 1) {
-            topLeftY += 1;
-        }
+    for (int tileY = startY; tileY <= endY; tileY++) {
+        for (int tileX = startX; tileX <= endX; tileX++) {
 
-        if (topLeftX < 0 || topLeftX >= 32 || topLeftY < 0 || topLeftY >= 32) {
-            continue;
-        }
+            int topLeftX = tileX;
+            int topLeftY = tileY;
 
-        int topLeft = SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)];
-        int topRight = SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)];
-        int bottomLeft = SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)];
-        int bottomRight = SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)];
-
-        int match = 0;
-
-        if (level == 1) {
-            match = (topLeft == 0 && topRight == 1 && bottomLeft == 4 && bottomRight == 5);
-        } else if (level == 2) {
-            match = (topLeft == 22 && topRight == 23 && bottomLeft == 28 && bottomRight == 29);
-        }
-
-        if (match) {
             if (level == 1) {
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
+                topLeftY += 1;
+            }
 
-                for (int i = 0; i < MAXFIRES; i++) {
-                    if (!blaze[i].active) {
-                        blaze[i].x = topLeftX * 8;
-                        blaze[i].y = topLeftY * 8;
-                        blaze[i].active = 1;
-                        blaze[i].timer = 20;
-                        blaze[i].currentFrame = 0;
-                        break;
-                    }
-                }
+            if (topLeftX < 0 || topLeftX + 1 >= 32 || topLeftY < 0 || topLeftY + 1 >= 32) {
+                continue;
+            }
+
+            int topLeft = SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)];
+            int topRight = SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)];
+            int bottomLeft = SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)];
+            int bottomRight = SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)];
+
+            int match = 0;
+
+            if (level == 1) {
+                match = (topLeft == 0 && topRight == 1 && bottomLeft == 4 && bottomRight == 5);
             } else if (level == 2) {
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 8;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 8;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 9;
-                SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 9;
+                match = (topLeft == 22 && topRight == 23 && bottomLeft == 28 && bottomRight == 29);
+            }
 
+            if (burned && cheat == 0) {
+                return;
+            }
+
+            if (match) {
+                burned = 1;
+                // Burn tiles
+                if (level == 1) {
+                    int spawnY = tileY;
+
+                    topLeftY = tileY + 1;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 2;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 2;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 2;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 2;
+
+                    if (!healItem.active && cheat == 0 && topLeftX == 30 && spawnY == 1) {
+                        healItem.x = topLeftX * 8;
+                        healItem.y = spawnY * 8;
+                        healItem.active = 1;
+                        healItem.width = 16;
+                        healItem.height = 16;
+                    }
+                } else if (level == 2) {
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY, 32)] = 8;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY, 32)] = 8;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX, topLeftY + 1, 32)] = 9;
+                    SCREENBLOCK[28].tilemap[OFFSET(topLeftX + 1, topLeftY + 1, 32)] = 9;
+                }
+
+                // Spawn blaze
                 for (int i = 0; i < MAXFIRES; i++) {
                     if (!blaze[i].active) {
                         blaze[i].x = topLeftX * 8;
@@ -435,31 +460,26 @@ void burn(int x, int y) {
                         break;
                     }
                 }
-            } else {
-                return 0;
-            }
 
-            for (int j = 0; j < MAXRARECANDY; j++) {
-                // Tiles
-                int candyX = rareCandy[j].x / 8;
-                int candyY = rareCandy[j].y / 8;
-                
-                if (!rareCandy[j].active &&
-                    // candyX == topLeftX &&
-                    // candyY == topLeftY) {
-                    // rareCandy[j].active = 1;
-                    abs(candyX - topLeftX) <= 2 &&
-                    abs(candyY - topLeftY) <= 2) {
-                    rareCandy[j].active = 1;
+                // Activate rare candy
+                for (int j = 0; j < MAXRARECANDY; j++) {
+                    int candyX = rareCandy[j].x / 8;
+                    int candyY = rareCandy[j].y / 8;
+
+                    if (!rareCandy[j].active &&
+                        abs(candyX - topLeftX) <= 1 &&
+                        abs(candyY - topLeftY) <= 1) {
+                        rareCandy[j].active = 1;
+                        rareCandy[j].delay = 0;
+                    }
+                }
+
+                // Recharge fireballs
+                if ((topLeft == 39) || (topRight == 40) ||
+                    (bottomLeft == 47) || (bottomRight == 48)) {
+                    fireballsRemaining++;
                 }
             }
-
-            // Recharge fireballs
-            if ((topLeft == 39) || (topRight == 40) || (bottomLeft == 47) || (bottomRight == 48)) {
-                // Change to add 5
-                fireballsRemaining++;
-            }
-            //break; // only burn one
         }
     }
 }
@@ -512,7 +532,7 @@ void initRareCandy() {
             // Hide
             rareCandy[i].active = 0;
             rareCandy[i].collected = 0;
-            rareCandy[i].oamIndex = 30 + i;
+            rareCandy[i].oamIndex = 40 + i;
         }
         // for (int i = 3; i < MAXRARECANDY; i++) {
         //     rareCandy[i].active = 0;
@@ -529,7 +549,7 @@ void initRareCandy() {
             // Hide
             rareCandy[i].active = 0;
             rareCandy[i].collected = 0;
-            rareCandy[i].oamIndex = 30 + i;
+            rareCandy[i].oamIndex = 40 + i;
         }
     }
 }
@@ -541,9 +561,17 @@ void clearRareCandy() {
     }
 }
 
+void clearHeal() {
+    healItem.active = 0;
+    shadowOAM[healItem.oamIndex].attr0 = ATTR0_HIDE;
+}
+
 void updateRareCandy() {
     for (int i = 0; i < MAXRARECANDY; i++) {
-        if (rareCandy[i].active && rareCandy[i].collected == 0 && collision(player.x, player.y, player.width, player.height,
+        if (rareCandy[i].active && rareCandy[i].collected == 0) {
+            rareCandy[i].delay++;
+        }
+        if (rareCandy[i].active && rareCandy[i].collected == 0 && rareCandy[i].delay > 10 && collision(player.x, player.y, player.width, player.height,
             rareCandy[i].x, rareCandy[i].y, rareCandy[i].width, rareCandy[i].height)) {
             rareCandy[i].active = 0;
             rareCandy[i].collected = 1;
@@ -601,12 +629,6 @@ int exit2() {
 void initHeal() {
     healItem.width = 16;
     healItem.height = 16;
-
-    if (level == 2) {
-        healItem.x = 120;
-        healItem.y = 128;
-    }
-    
     healItem.active = 1;
     healItem.oamIndex = 60;
 }
@@ -614,10 +636,10 @@ void initHeal() {
 void updateHeal() {
     if (healItem.active && collision(player.x, player.y, player.width, player.height,
         healItem.x, healItem.y, healItem.width, healItem.height)) {
+        
+        playSoundB(cheatSound_data, cheatSound_length, 0);
         healItem.active = 0;
-        if (lives < 3) {
-            lives++;
-        }
+        cheat = 1;
         shadowOAM[healItem.oamIndex].attr0 = ATTR0_HIDE;
     }
 }
@@ -630,23 +652,12 @@ void drawHeal() {
     }
 }
 
-void drawHearts() {
-    for (int i = 0; i < lives; i++) {
-        shadowOAM[lifeCount.oamIndex + i].attr0 = ATTR0_Y(lifeCount.y) | ATTR0_SQUARE | ATTR0_4BPP;
-        shadowOAM[lifeCount.oamIndex + i].attr1 = ATTR1_X(lifeCount.x + i * 10) | ATTR1_SMALL;
-        shadowOAM[lifeCount.oamIndex + i].attr2 = ATTR2_TILEID(4, 6);
-    }
-    for (int i = lives; i < 3; i++) {
-        shadowOAM[lifeCount.oamIndex + i].attr0 = ATTR0_HIDE;
-    }
-}
-
 void initBrock() {
     brock.x = 120;
     brock.y = 140;
     brock.width = 16;
     brock.height = 16;
-    brock.oamIndex = 126;
+    brock.oamIndex = 20;
     brock.speed = 1;
     brock.counter = 0;
     brock.delay = 2; 
@@ -667,7 +678,7 @@ void initBrockDialog() {
     brock.y = 58;
     brock.width = 32;
     brock.height = 32;
-    brock.oamIndex = 126;
+    brock.oamIndex = 20;
 
     brockState = TALKING;
 }
@@ -838,9 +849,17 @@ void updateBattle() {
             move = 1;
         }
         if (BUTTON_PRESSED(BUTTON_A)) {
-            playSoundB(roarSound_data, roarSound_length, 0);
-            // 85% chance of attack landing
-            if (rand() % 100 < 85) {
+            int chance = 100;
+
+            if (move == 0) {
+                playSoundB(roarSound_data, roarSound_length, 0);
+                chance = 85;
+            } else if (move == 1) {
+                playSoundB(scratchSound_data, scratchSound_length, 0);
+                chance = 60;
+            }
+
+            if (rand() % 100 < chance) {
                 onixHP--;
                 onixDamaged = 10;
                 onixTimer = 45;
@@ -869,7 +888,18 @@ void updateBattle() {
             level = 3;
             shadowOAM[charizard.oamIndex].attr0 = ATTR0_HIDE;
             shadowOAM[onix.oamIndex].attr0 = ATTR0_HIDE;
-            goToGame3();
+
+            goToGame3(1);
+            initBrockDialog();
+            clearBattle();
+
+            const char* brockDialog[] = {
+                "What a noble attempt",
+                "You can do this",
+                "Step up to me when#you are ready"
+            };
+        
+            startMultiDialog(brockDialog, 3, 1, 1, 0);
         } else if (onixHP <= 0) {
             goToWin();
         }
@@ -937,5 +967,15 @@ void drawBattle() {
             SPRITE_PAL[10] = RGB(22, 22, 26);
             SPRITE_PAL[2] = RGB(14, 20, 24);
         }
+    }
+}
+
+void clearBattle() {
+    shadowOAM[charizard.oamIndex].attr0 = ATTR0_HIDE;
+    shadowOAM[onix.oamIndex].attr0 = ATTR0_HIDE;
+
+    for (int i = 0; i < 5; i++) {
+        shadowOAM[20 + i].attr0 = ATTR0_HIDE;
+        shadowOAM[30 + i].attr0 = ATTR0_HIDE;
     }
 }
