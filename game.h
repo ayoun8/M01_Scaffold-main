@@ -13,6 +13,17 @@ int candyY[MAXRARECANDY];
 #define MAPWIDTH 256
 #define MAPHEIGHT 256
 
+#define DOOR_TILE_X 3
+#define DOOR_TILE_Y 3
+
+#define DOOR_X (DOOR_TILE_X * 8)
+#define DOOR_Y (DOOR_TILE_Y * 8)
+
+#define BROCK_FIRST_X 170
+#define BROCK_FIRST_Y 170
+#define BROCK_SECOND_X 170
+#define BROCK_SECOND_Y 40
+
 // External variables
 extern SPRITE player;
 extern SPRITE fireballs[MAXFIREBALLS];
@@ -50,6 +61,7 @@ void drawFireballs();
 void initRareCandy();
 void updateRareCandy();
 void drawRareCandy();
+void clearRareCandy();
 
 void findFlowerSpots();
 void randomFlowers();

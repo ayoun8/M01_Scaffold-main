@@ -66,8 +66,22 @@ void updateDialog() {
         return;
     }
     if (dialogBox.wait) {
-        if (BUTTON_PRESSED(BUTTON_START)) {
-            // Go to next message WITH START
+        if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
+            // Attempt
+            if (dialogBox.currCharIndex < strlen(dialogBox.message)) {
+                // Skip to end of message
+                dialogBox.currCharIndex = strlen(dialogBox.message);
+            } else {
+                // Go to next message
+                if (dialogBox.currentMessage + 1 < dialogBox.numMessages) {
+                    dialogBox.currentMessage++;
+                    dialogBox.message = dialogBox.messages[dialogBox.currentMessage];
+                    dialogBox.currCharIndex = 0;
+                } else {
+                    closeDialog();
+                }
+            }
+            // Go to next message WITH RSHOULDER
             if (dialogBox.currentMessage + 1 < dialogBox.numMessages) {
                 dialogBox.currentMessage++;
                 dialogBox.message = dialogBox.messages[dialogBox.currentMessage];

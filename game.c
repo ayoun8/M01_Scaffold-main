@@ -24,6 +24,8 @@
 #include "burnSound.h"
 #include "roarSound.h"
 
+#include "dialog.h"
+
 // Global variable definitions
 SPRITE player;
 SPRITE fireballs[MAXFIREBALLS];
@@ -48,7 +50,8 @@ typedef enum {
 typedef enum {
     IDLE,
     TALKING,
-    MOVING
+    MOVING, 
+    WAITING
 } BROCKSTATE;
 
 // Surrogate variables
@@ -77,6 +80,9 @@ int attackCooldown;
 int onixTimer;
 int charizardTimer;
 
+int brockSpoke = 0;
+int dialogDelay = 200;
+int dialogDelayCounter = 200;
 BROCKSTATE brockState;
 
 inline unsigned char colorAt(int x, int y){
@@ -119,18 +125,24 @@ void updateGame() {
     updateHeal();
     updateBlaze();
 
-    if (level == 1 && rareCandiesCollected == 3) {
-        evolution = 1;
-        if (exit1()) {
+    if (level == 1 && exit1()) {
+        if (evolution == 1) {
             fireballsRemaining = 5;
             fireballDelayTimer = 60;
             goToGame2();
+        } else {
+            if (dialogBox.active == 0) {
+                dialogDelayCounter++;
+                if (dialogDelayCounter >= dialogDelay) {
+                    dialogDelayCounter = 0;
+                    startDialog("You are not the#evolution I seek#You are too weak", 1, 1, 0);
+                }
+            }
         }
     }
 
-    if (level == 2) {
-        if (rareCandiesCollected == 3 && exit2()) {
-            evolution = 2;
+    if (exit2()) {
+        if (level == 2 && evolution == 2) {
             goToGame3();
         }
     }
@@ -166,7 +178,7 @@ void initPlayer() {
     player.yVel = 1;
     player.width = 16;
     player.height = 16;
-    player.oamIndex = 0;
+    player.oamIndex = 127;
     player.timeUntilNextFrame = 5;
     player.direction = DOWN;
     player.currentFrame = 0;
@@ -278,21 +290,21 @@ void updatePlayer() {
 
 void drawPlayer() {
     if (!isPokemon) {
-        shadowOAM[0].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-        shadowOAM[0].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
-        shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2, player.currentFrame * 2);
+        shadowOAM[player.oamIndex].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[player.oamIndex].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
+        shadowOAM[player.oamIndex].attr2 = ATTR2_TILEID(player.direction * 2, player.currentFrame * 2);
     }
     
     else if (isPokemon) {
-        shadowOAM[0].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-        shadowOAM[0].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
+        shadowOAM[player.oamIndex].attr0 = ATTR0_Y(player.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[player.oamIndex].attr1 = ATTR1_X(player.x - hOff) | ATTR1_SMALL;
 
         if (evolution == 0) {
-            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 8, player.currentFrame * 2);
+            shadowOAM[player.oamIndex].attr2 = ATTR2_TILEID(player.direction * 2 + 8, player.currentFrame * 2);
         } else if (evolution == 1) {
-            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 16, player.currentFrame * 2);
+            shadowOAM[player.oamIndex].attr2 = ATTR2_TILEID(player.direction * 2 + 16, player.currentFrame * 2);
         } else if (evolution == 2) {
-            shadowOAM[0].attr2 = ATTR2_TILEID(player.direction * 2 + 24, player.currentFrame * 2);
+            shadowOAM[player.oamIndex].attr2 = ATTR2_TILEID(player.direction * 2 + 24, player.currentFrame * 2);
         }
     }
 
@@ -487,6 +499,7 @@ void drawBlaze() {
 }
 
 void initRareCandy() {
+    clearRareCandy();
     if (level == 1) {
         int candyX[] = {1 * 8, 3 * 8, 30 * 8};
         int candyY[] = {16 * 8, 30 * 8, 27 * 8};
@@ -498,11 +511,12 @@ void initRareCandy() {
             rareCandy[i].height = 16;
             // Hide
             rareCandy[i].active = 0;
-            rareCandy[i].oamIndex = 50 + i;
+            rareCandy[i].collected = 0;
+            rareCandy[i].oamIndex = 30 + i;
         }
-        for (int i = 3; i < MAXRARECANDY; i++) {
-            rareCandy[i].active = 0;
-        }
+        // for (int i = 3; i < MAXRARECANDY; i++) {
+        //     rareCandy[i].active = 0;
+        // }
     } else if (level == 2) {
         int candyX[] = {30 * 8, 2 * 8, 28 * 8};
         int candyY[] = {3 * 8, 30 * 8, 28 * 8};
@@ -514,20 +528,32 @@ void initRareCandy() {
             rareCandy[i].height = 16;
             // Hide
             rareCandy[i].active = 0;
+            rareCandy[i].collected = 0;
             rareCandy[i].oamIndex = 30 + i;
         }
     }
 }
 
+void clearRareCandy() {
+    for (int i = 0; i < MAXRARECANDY; i++) {
+        rareCandy[i].active = 0;
+        shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_HIDE;
+    }
+}
+
 void updateRareCandy() {
     for (int i = 0; i < MAXRARECANDY; i++) {
-        if (rareCandy[i].active && collision(player.x, player.y, player.width, player.height,
+        if (rareCandy[i].active && rareCandy[i].collected == 0 && collision(player.x, player.y, player.width, player.height,
             rareCandy[i].x, rareCandy[i].y, rareCandy[i].width, rareCandy[i].height)) {
             rareCandy[i].active = 0;
+            rareCandy[i].collected = 1;
             rareCandiesCollected++;
             shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_HIDE;
 
-            if (level == 2 && rareCandiesCollected == 3) {
+            if (rareCandiesCollected == 3) {
+                evolution = 1; // Charmeleon
+            }
+            if (rareCandiesCollected == 6) {
                 evolution = 2; // Charizard
             }
         }
@@ -536,7 +562,7 @@ void updateRareCandy() {
 
 void drawRareCandy() {
     for (int i = 0; i < MAXRARECANDY; i++) {
-        if (rareCandy[i].active) {
+        if (rareCandy[i].active && rareCandy[i].collected == 0) {
             shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_Y(rareCandy[i].y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
             shadowOAM[rareCandy[i].oamIndex].attr1 = ATTR1_X(rareCandy[i].x - hOff) | ATTR1_SMALL;
             shadowOAM[rareCandy[i].oamIndex].attr2 = ATTR2_TILEID(10, 6);
@@ -617,13 +643,23 @@ void drawHearts() {
 
 void initBrock() {
     brock.x = 120;
-    brock.y = 100;
+    brock.y = 140;
     brock.width = 16;
     brock.height = 16;
-    brock.oamIndex = 59;
+    brock.oamIndex = 126;
     brock.speed = 1;
+    brock.counter = 0;
+    brock.delay = 2; 
+    brock.xVel = 1;
+    brock.yVel = 1;
+    brock.timeUntilNextFrame = 5;
+    brock.direction = LEFT;
+    brock.currentFrame = 0;
+    brock.numFrames = 3;
+    brock.isAnimating = 0;
+    brock.path = 0;
 
-    brockState = IDLE;
+    brockState = MOVING;
 }
 
 void initBrockDialog() {
@@ -631,31 +667,20 @@ void initBrockDialog() {
     brock.y = 58;
     brock.width = 32;
     brock.height = 32;
-    brock.oamIndex = 59;
+    brock.oamIndex = 126;
 
     brockState = TALKING;
 }
 
 void updateBrock() {
-    if (brockState == TALKING) {
-        initBrock();
-    }
-
     if (brockState == IDLE) {
         if (collision(player.x, player.y, player.width, player.height, brock.x, brock.y, brock.width, brock.height)) {
             goToBattle();
         }
     } else if (brockState == TALKING) {
-        if (BUTTON_PRESSED(BUTTON_A)) {
-            brockState = MOVING;
-        }
+        initBrock();
     } else if (brockState == MOVING) {
         updateBrockMovement();
-        if (brock.x < player.x) {
-            brock.x += brock.speed;
-        } else if (brock.x > player.x) {
-            brock.x -= 1;
-        }
     }
 }
 
@@ -664,43 +689,114 @@ void finishDialogue() {
 }
 
 void updateBrockMovement() {
-    // int doorX = 3;
-    // int doorY = 3;
+    // Copy animation code from player
+    // Instead of determining direction from input, just set the direction myself
+    // Added path for moving Brock to diff positions
 
-    // if (brockState == MOVING) {
-    //     if (brock.x < doorX) {
-    //         brock.x += brock.speed;
-    //     } else if (brock.x > doorX) {
-    //         brock.x -= brock.speed;
-    //     }
-    //     if (brock.y < doorY) {
-    //         brock.y += brock.speed;
-    //     } else if (brock.y > doorY) {
-    //         brock.y -= brock.speed;
-    //     }
+    // Slow brock down
+    brock.counter++;
+    if (brock.counter >= brock.delay) {
+        brock.counter = 0;
 
-    //     if (abs(brock.x - doorX) < brock.speed && abs(brock.y - doorY) < brock.speed) {
-    //         brock.x = doorX;
-    //         brock.y = doorY;
-    //         // Transition 
-    //         brockState = IDLE;
-    //     }
-    // }
+        // Move to position 1, 2, door
+        // The positions were set up game.h
+        if (brock.path == 0) {
+            brock.direction = RIGHT;
+
+            if (brock.x < BROCK_FIRST_X) {
+                brock.x += brock.speed;
+            } else if (brock.x > BROCK_FIRST_X) {
+                brock.x -= brock.speed;
+            }
+            if (brock.y < BROCK_FIRST_Y) {
+                brock.y += brock.speed;
+            } else if (brock.y > BROCK_FIRST_Y) {
+                brock.y -= brock.speed;
+            }
+        
+            if (abs(brock.x - BROCK_FIRST_X) < brock.speed && abs(brock.y - BROCK_FIRST_Y) < brock.speed) {
+                brock.x = BROCK_FIRST_X;
+                brock.y = BROCK_FIRST_Y;
+        
+                brock.path++;
+            }
+        } else if (brock.path == 1) {
+            brock.direction = UP;
+
+            if (brock.x < BROCK_SECOND_X) {
+                brock.x += brock.speed;
+            } else if (brock.x > BROCK_SECOND_X) {
+                brock.x -= brock.speed;
+            }
+            if (brock.y < BROCK_SECOND_Y) {
+                brock.y += brock.speed;
+            } else if (brock.y > BROCK_SECOND_Y) {
+                brock.y -= brock.speed;
+            }
+        
+            if (abs(brock.x - BROCK_SECOND_X) < brock.speed && abs(brock.y - BROCK_SECOND_Y) < brock.speed) {
+                brock.x = BROCK_SECOND_X;
+                brock.y = BROCK_SECOND_Y;
+        
+                brock.path++;
+            }
+        } else if (brock.path == 2) {
+            brock.direction = LEFT;
+
+            if (brock.x < DOOR_X) {
+                brock.x += brock.speed;
+            } else if (brock.x > DOOR_X) {
+                brock.x -= brock.speed;
+            }
+            if (brock.y < DOOR_Y) {
+                brock.y += brock.speed;
+            } else if (brock.y > DOOR_Y) {
+                brock.y -= brock.speed;
+            }
+        
+            if (abs(brock.x - DOOR_X) < brock.speed && abs(brock.y - DOOR_Y) < brock.speed) {
+                brock.x = DOOR_X;
+                brock.y = DOOR_Y;
+        
+                brockState = IDLE;
+            }
+        }
+    }
+
+    // Same animation code as player without input
+    // Set directions (path) above, then the code below goes based off those directions
+    brock.isAnimating = 1;
+
+    int tileX = (brock.x + brock.width / 2) / 8;
+    int tileY = (brock.y + brock.height / 2) / 8;
+
+    unsigned short tile = SCREENBLOCK[28].tilemap[OFFSET(tileX, tileY, 32)];
+
+    if (brock.isAnimating) {
+        brock.timeUntilNextFrame--;
+        if (brock.timeUntilNextFrame <= 0) {
+            brock.timeUntilNextFrame = 10;
+            brock.currentFrame = (brock.currentFrame + 1) % brock.numFrames;
+        }
+    } else {
+        brock.currentFrame = 0;
+        brock.timeUntilNextFrame = 10;
+    }
 }
 
 void drawBrock() {
-    shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
-    shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
-
     if (brockState == IDLE) {
-        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(0, 8);
+        shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(0, 10);
     } else if (brockState == TALKING) {
         shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(16, 16);
-
         shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y) | ATTR0_SQUARE | ATTR0_4BPP;
         shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x) | ATTR1_LARGE;
     } else if (brockState == MOVING) {
-        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(4, 8);
+        shadowOAM[brock.oamIndex].attr0 = ATTR0_Y(brock.y - vOff) | ATTR0_SQUARE | ATTR0_4BPP;
+        shadowOAM[brock.oamIndex].attr1 = ATTR1_X(brock.x - hOff) | ATTR1_SMALL;
+        shadowOAM[brock.oamIndex].attr2 = ATTR2_TILEID(brock.direction * 2, brock.currentFrame * 2 + 8);
     }
 }
 

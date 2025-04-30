@@ -84,13 +84,6 @@ void win();
 
 void battle();
 
-void clearRareCandy() {
-    for (int i = 0; i < MAXRARECANDY; i++) {
-        rareCandy[i].active = 0;
-        shadowOAM[rareCandy[i].oamIndex].attr0 = ATTR0_HIDE;
-    }
-}
-
 int main() {
     initialize();
 
@@ -133,9 +126,6 @@ void initialize() {
     hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
 
-    // Load ascii tileset into memory
-    
-
     // Initialize hOff and vOff
     hOff = 0;
     vOff = 0;
@@ -147,7 +137,7 @@ void initialize() {
 
 void goToStart() {
     stopSounds();
-    initGame();
+    // initGame();
 
     REG_BG0CNT = BG_CHARBLOCK(0) | BG_SCREENBLOCK(31) | BG_SIZE_SMALL;
 
@@ -167,7 +157,6 @@ void goToStart() {
 
 void start(){
     if (BUTTON_PRESSED(BUTTON_START)) {
-        initGame();
         goToGame();
     }
     if (BUTTON_PRESSED(BUTTON_RSHOULDER)) {
@@ -253,17 +242,15 @@ void goToGame() {
 
     pauseSounds();
     playSoundA(lrSong_data, lrSong_length, 1);
+    initGame();
 
     state = GAME;
 }
 
 void goToGame2() {
     stopSounds();
-
-    clearRareCandy();
     
     level = 2;
-    rareCandiesCollected = 0;
     fireballsRemaining = 5;
     initRareCandy();
     initPlayer();
@@ -295,10 +282,8 @@ void goToGame3() {
     stopSounds();
     
     hideSprites();
-    clearRareCandy();
 
     level = 3;
-    rareCandiesCollected = 0;
 
     initPlayer();
     initBrockDialog();
@@ -398,25 +383,6 @@ void game(){
 
     if (BUTTON_PRESSED(BUTTON_START)) {
         goToPause();
-    }
-    
-    if (level == 1) {
-        if (rareCandiesCollected >= 3 && exit1()) {
-            evolution = 1;
-            fireballsRemaining = 8;
-            goToGame2();
-        }
-    } else if (level == 2) {
-        if (rareCandiesCollected >= 3 && exit2()) {
-            evolution = 2;
-            goToGame3();
-        }
-    } else if (level == 3) {
-        // updateBrock();
-        // if (collisionBrock()) {
-        //     startDialogue("I'm Brock, let's battle when you're ready.");
-        // }
-
     }
 }
 

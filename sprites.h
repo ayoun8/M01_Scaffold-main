@@ -79,6 +79,10 @@ typedef struct {
   int numFrames;
   int active;
   int speed;
+  int counter;
+  int delay;
+  int path;
+  int collected;
   u8 oamIndex; 
 } SPRITE;
 
