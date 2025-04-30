@@ -10,7 +10,7 @@
         v. Rare candies start initialized for easy level traversing, but also appear after you burn their "hidden" locations.
     d. *Charmeleon* and *Charizard* players with three frames of animation per direction- each loading based on the evolution
     e. *Brock* with three frames of animation per direction
-    f. Charizard and Onyx boss battle sprites with two frames of animation
+    f. Charizard and Onix boss battle sprites with two frames of animation
 2. FUNCTIONING MOVEMENT
     a. The player can move using the D pad
     b. The pokemon can move using the D pad
@@ -37,8 +37,8 @@
 5. FUNCTIONING STATES:
     a. *Start, instructions, game, pause, win, lose, battle* states are all implemented
         - ***Winning and losing conditions are also implemented***
-            - To win, beat onyx
-            - To lose, lose to onyx, respawn to level 3
+            - To win, beat onix
+            - To lose, lose to onix, respawn to level 3
         - All states are functional.
 6. FUNCTIONING TILEMAP AND TILESET FOR ALL FOUR LEVELS
 7. LOOPING SONGS FOR EVERY LEVEL
@@ -118,6 +118,6 @@ FIREBALL LOCATIONS:
     ***BOSS BATTLE***
     - In the boss battle, press left for flamethrower and right for scratch.
         - The heal from earlier gives you an extra life once your lives drop below 3. 
-        - Press A to attack. Once you attack, Onyx attacks.
+        - Press A to attack. Once you attack, Onix attacks.
         - You both have a chance to miss each other.
         - If you win, it goes to the win screen. If you lose, then you go back to level 3 and have to rebattle Brock.

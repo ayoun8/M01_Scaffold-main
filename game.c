@@ -33,7 +33,7 @@ SPRITE healItem;
 SPRITE lifeCount;
 SPRITE brock;
 SPRITE charizard;
-SPRITE onyx;
+SPRITE onix;
 
 OBJ_ATTR shadowOAM[128];
 
@@ -67,14 +67,14 @@ int fireballDelayTimer = 0;
 int level = 1;
 
 int charizardHP;
-int onyxHP;
+int onixHP;
 int charizardDamaged;
-int onyxDamaged;
+int onixDamaged;
 int charizardTurn;
 int move;
 int attackCooldown;
 
-int onyxTimer;
+int onixTimer;
 int charizardTimer;
 
 BROCKSTATE brockState;
@@ -497,7 +497,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 1;
+            rareCandy[i].active = 0;
             rareCandy[i].oamIndex = 50 + i;
         }
         for (int i = 3; i < MAXRARECANDY; i++) {
@@ -513,7 +513,7 @@ void initRareCandy() {
             rareCandy[i].width = 16;
             rareCandy[i].height = 16;
             // Hide
-            rareCandy[i].active = 1;
+            rareCandy[i].active = 0;
             rareCandy[i].oamIndex = 30 + i;
         }
     }
@@ -695,13 +695,13 @@ void initBattle() {
     charizardHP = 5;
     charizardDamaged = 0;
 
-    onyx.x = 140;
-    onyx.y = 20;
-    onyx.oamIndex = 6;
-    onyx.width = 32;
-    onyx.height = 32;
-    onyxHP = 5;
-    onyxDamaged = 0;
+    onix.x = 140;
+    onix.y = 20;
+    onix.oamIndex = 6;
+    onix.width = 32;
+    onix.height = 32;
+    onixHP = 5;
+    onixDamaged = 0;
 
     charizardTurn = 1;
     move = 0;
@@ -727,9 +727,9 @@ void updateBattle() {
             playSoundB(roarSound_data, roarSound_length, 0);
             // 85% chance of attack landing
             if (rand() % 100 < 85) {
-                onyxHP--;
-                onyxDamaged = 10;
-                onyxTimer = 45;
+                onixHP--;
+                onixDamaged = 10;
+                onixTimer = 45;
                 SPRITE_PAL[9] = RGB(31, 0, 0);
                 SPRITE_PAL[1] = RGB(31, 0, 0);
             }
@@ -738,7 +738,7 @@ void updateBattle() {
         }
     } 
     else {
-        // Onyx's attack has an 80% chance of landing
+        // Onix's attack has an 80% chance of landing
         if (attackCooldown <= 0) {
             if (rand() % 100 < 80) {
                 charizardHP--;
@@ -754,9 +754,9 @@ void updateBattle() {
         if (charizardHP <= 0) {
             level = 3;
             shadowOAM[charizard.oamIndex].attr0 = ATTR0_HIDE;
-            shadowOAM[onyx.oamIndex].attr0 = ATTR0_HIDE;
+            shadowOAM[onix.oamIndex].attr0 = ATTR0_HIDE;
             goToGame3();
-        } else if (onyxHP <= 0) {
+        } else if (onixHP <= 0) {
             goToWin();
         }
 }
@@ -775,17 +775,17 @@ void drawBattle() {
         shadowOAM[charizard.oamIndex].attr2 = ATTR2_TILEID(16, 8);
     }
 
-    // Draw Onyx
-    shadowOAM[onyx.oamIndex].attr0 = ATTR0_Y(onyx.y) | ATTR0_SQUARE | ATTR0_4BPP;
-    shadowOAM[onyx.oamIndex].attr1 = ATTR1_X(onyx.x) | ATTR1_LARGE;
+    // Draw Onix
+    shadowOAM[onix.oamIndex].attr0 = ATTR0_Y(onix.y) | ATTR0_SQUARE | ATTR0_4BPP;
+    shadowOAM[onix.oamIndex].attr1 = ATTR1_X(onix.x) | ATTR1_LARGE;
     
-    if (onyxDamaged > 0) {
-        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(0, 16) | ATTR2_PALROW(0);
-        onyxDamaged--;
+    if (onixDamaged > 0) {
+        shadowOAM[onix.oamIndex].attr2 = ATTR2_TILEID(0, 16) | ATTR2_PALROW(0);
+        onixDamaged--;
     } else if (!charizardTurn) {
-        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(8, 16);
+        shadowOAM[onix.oamIndex].attr2 = ATTR2_TILEID(8, 16);
     } else {
-        shadowOAM[onyx.oamIndex].attr2 = ATTR2_TILEID(0, 16);
+        shadowOAM[onix.oamIndex].attr2 = ATTR2_TILEID(0, 16);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -798,11 +798,11 @@ void drawBattle() {
             shadowOAM[20 + i].attr0 |= ATTR0_HIDE;
         }
 
-        // Onyx HP
+        // Onix HP
         shadowOAM[30 + i].attr0 = ATTR0_Y(5) | ATTR0_SQUARE | ATTR0_4BPP;
         shadowOAM[30 + i].attr1 = ATTR1_X(200 - i * 10) | ATTR1_TINY;
         shadowOAM[30 + i].attr2 = ATTR2_TILEID(4, 6);
-        if (i >= onyxHP) {
+        if (i >= onixHP) {
             shadowOAM[30 + i].attr0 |= ATTR0_HIDE;
         }
     }
@@ -817,9 +817,9 @@ void drawBattle() {
             SPRITE_PAL[5] = RGB(7, 7, 15);
         }
     }
-    if (onyxTimer > 0) {
-        onyxTimer--;
-        if (onyxTimer == 0) {
+    if (onixTimer > 0) {
+        onixTimer--;
+        if (onixTimer == 0) {
             SPRITE_PAL[9] = RGB(22, 22, 26);
             SPRITE_PAL[1] = RGB(14, 20, 24);
         }

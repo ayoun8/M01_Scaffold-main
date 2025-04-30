@@ -50,6 +50,7 @@ unsigned short oldButtons;
 unsigned short buttons;
 int state;
 int prevState;
+extern volatile unsigned short *videoBuffer;
 
 // State enum
 enum {
@@ -121,6 +122,8 @@ int main() {
 }
 
 void initialize() {
+    *videoBuffer = (unsigned short *)0x6000000;
+    
     REG_DISPCTL = MODE(0) | BG_ENABLE(0) | SPRITE_ENABLE;
 
     // Load sprites into memory
@@ -128,6 +131,9 @@ void initialize() {
     DMANow(3, &spritesheetPal, SPRITE_PAL, spritesheetPalLen/2);
     hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
+
+    // Load ascii tileset into memory
+    
 
     // Initialize hOff and vOff
     hOff = 0;
@@ -284,7 +290,7 @@ void goToGame3() {
     DMANow(3, &spritesheetPal, SPRITE_PAL, spritesheetPalLen/2);
     hideSprites();
     DMANow(3, shadowOAM, OAM, 512);
-    
+
     stopSounds();
     
     hideSprites();
